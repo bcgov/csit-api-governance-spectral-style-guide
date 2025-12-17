@@ -1,7 +1,7 @@
 {
-  "name": "bcgov/sdx-openapi",
+  "name": "bcgov/csit-api-governance-spectral-style-guide",
   "version": "2.0.0",
-  "description": "OpenAPI v3 specification for BC Gov's Secure Data Exchange LAB API v1.",
+  "description": "OpenAPI specification for BC Gov's API Governance v1.",
   "scripts": {
     "test": "jest"
   },
@@ -16,12 +16,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bcgov/sdx-openapi.git"
+    "url": "git+https://github.com/bcgov/csit-api-governance-spectral-style-guide.git"
   },
   "author": "API Programme Services, BC Gov",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/bcgov/sdx-openapi/issues"
+    "url": "https://github.com/bcgov/csit-api-governance-spectral-style-guide/issues"
   },
-  "homepage": "https://github.com/bcgov/sdx-openapi#readme"
+  "homepage": "https://github.com/bcgov/csit-api-governance-spectral-style-guide#readme"
 }
