@@ -1,0 +1,27 @@
+{
+  "name": "bcgov/csit-api-governance-spectral-style-guide",
+  "version": "2.0.0",
+  "description": "OpenAPI specification for BC Gov's API Governance v1.",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@stoplight/spectral-cli": "^6.15.0",
+    "@stoplight/spectral-core": "^1.20.0",
+    "@stoplight/spectral-parsers": "^1.0.5",
+    "@stoplight/spectral-ruleset-bundler": "^1.6.3",
+    "@stoplight/spectral-rulesets": "^1.22.0",
+    "@stoplight/spectral-runtime": "^1.1.4",
+    "jest": "^30.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bcgov/csit-api-governance-spectral-style-guide.git"
+  },
+  "author": "API Programme Services, BC Gov",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/bcgov/csit-api-governance-spectral-style-guide/issues"
+  },
+  "homepage": "https://github.com/bcgov/csit-api-governance-spectral-style-guide#readme"
+}

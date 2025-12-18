@@ -1,0 +1,5 @@
+node_modules
+
+.spectral.generated.yaml
+
+.vscode/settings.json
