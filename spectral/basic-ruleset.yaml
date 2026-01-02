@@ -2,6 +2,10 @@
 # This is the description for the document.
 extends: spectral:oas
 
+functions:
+  - no-empty-property-names
+  - path-segments-kebab-case
+
 rules:
   # Section: Well-formedness rules
   # This is the description for the section.
@@ -993,6 +997,7 @@ rules:
   # ```
   operation-id-camel-case:
     description: operationId should be camelCase (starts with lowercase letter, no separators)
+    message: "Operation ID '{{value}}' should be camelCase (start with lowercase letter, no special characters except letters and numbers)"
     severity: warn
     given: $..operationId
     then:
@@ -1033,24 +1038,11 @@ rules:
   # ```
   path-segments-kebab-case:
     description: Static path segments should be kebab-case (lowercase letters, numbers, hyphens only)
+    message: "{{error}}"  # This tells Spectral to use the message from the custom function
     severity: warn
-    given: $.paths
+    given: $.paths.*
     then:
-      field: "@key"
-      function: pattern
-      functionOptions:
-        # Explanation:
-        # ^/                                           → starts with root slash
-        # (?:                                          → non-capturing group for alternatives
-        #   $                                          → OR: root path "/" only
-        #   |                                          → OR: path with segments
-        #   ({[^}]*}|[a-z0-9-]+)                       → first item: either {anything} or kebab segment
-        #   (/(?:{[^}]*}|[a-z0-9-]+))*                 → zero or more additional / + {anything} or kebab
-        # )
-        # /?                                           → optional trailing slash
-        # (\?.*)?                                      → optional query string
-        # $
-        match: ^/(?:$|({[^}]*}|[a-z0-9-]+)(/(?:{[^}]*}|[a-z0-9-]+))*\/?(\?.*)?)$
+      function: path-segments-kebab-case
 
   # Path parameters: camelCase
   # Path parameter names appear in generated client code and URLs. camelCase aligns with
@@ -1081,6 +1073,7 @@ rules:
   # ```
   path-param-camel-case:
     description: Path parameter names should be camelCase
+    message: "Path parameter name '{{value}}' should be camelCase (start with lowercase letter, no special characters except letters and numbers)"
     severity: warn
     given: $.paths..parameters[?(@.in == 'path')].name
     then:
@@ -1120,6 +1113,7 @@ rules:
   # ```
   query-param-camel-case:
     description: Query parameter names should be camelCase
+    message: "Query parameter '{{value}}' should be camelCase (start with lowercase letter, no special characters except letters and numbers)"
     severity: warn
     given: $.paths..parameters[?(@.in == 'query')].name
     then:
@@ -1159,18 +1153,55 @@ rules:
   #         UserId: { type: string }
   # ```
   schema-property-camel-case:
-      description: Schema property names in request/response bodies should be camelCase
-      severity: warn
-      given:
-        - $.definitions..properties
-        - $.components.schemas..properties
-        - $..properties   # This catches ALL properties maps, including inline schemas
-      then:
-        field: "@key"
-        function: pattern
-        functionOptions:
-          match: ^[a-z][a-zA-Z0-9]*$
+    description: Schema property names in request/response bodies should be camelCase
+    message: "Schema property '{{property}}' should be camelCase (start with lowercase letter, no special characters except letters and numbers)"
+    severity: warn
+    given:
+      - $.definitions..properties
+      - $.components.schemas..properties
+      - $..properties   # This catches ALL properties maps, including inline schemas
+    then:
+      field: "@key"
+      function: pattern
+      functionOptions:
+        match: ^[a-z][a-zA-Z0-9]*$
   
+  # Schema properties: No empty string property names
+  # OpenAPI schemas should not use an empty string ("") as a property name.
+  # Empty property keys are invalid in actual JSON payloads (most parsers reject { "": "value" }),
+  # break code generators, and are poorly supported by documentation tools.
+  # This pattern sometimes appears as a workaround to model "a single arbitrary key with a string value",
+  # but the correct approach is to use `additionalProperties` with constraints (e.g., minProperties/maxProperties: 1).
+  # Valid example (using additionalProperties):
+  # ```yaml
+  # Diff:
+  #   type: object
+  #   additionalProperties:
+  #     type: string
+  #     description: Description of the changes in correction filing.
+  #   minProperties: 1
+  #   maxProperties: 1
+  # ```
+  # Invalid example (empty string key):
+  # ```yaml
+  # Diff:
+  #   anyOf:
+  #     - properties:
+  #         '':                     # <-- disallowed
+  #           type: string
+  #           description: Description of the changes in correction filing.
+  # ```
+  no-empty-property-names:
+    description: Property names must not be empty strings. Empty keys are invalid in JSON and poorly supported by tools.
+    message: "{{error}}"  # This tells Spectral to use the message from the custom function
+    severity: warn
+    resolved: false   # Key: Run on the unresolved (raw) document to see $ref keywords
+    given:
+      - $.components.schemas..properties
+      - $.paths..properties
+      - $..properties[?(@property && @parentProperty !== 'properties')]
+    then:
+      function: no-empty-property-names
 
   # Section: Optional Content
   
