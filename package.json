@@ -2,10 +2,20 @@
   "name": "bcgov/csit-api-governance-spectral-style-guide",
   "version": "2.0.0",
   "description": "OpenAPI specification for BC Gov's API Governance v1.",
+  "type": "module",
   "scripts": {
+    "clean": "rimraf spectral",
+    "dereference-rulesets": "node scripts/dereference-rulesets.js",
+    "generate-styleguide": "node scripts/generate-styleguide.js",
+    "bundle-functions": "node scripts/bundle-spectral-functions.js",
+    "build": "npm run clean && npm run dereference-rulesets && npm run bundle-functions && npm run generate-styleguide",
     "test": "jest"
   },
   "devDependencies": {
+    "@rollup/plugin-alias": "^5.1.1",
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
     "@stoplight/spectral-cli": "^6.15.0",
     "@stoplight/spectral-core": "^1.20.0",
     "@stoplight/spectral-parsers": "^1.0.5",
@@ -13,7 +23,9 @@
     "@stoplight/spectral-rulesets": "^1.22.0",
     "@stoplight/spectral-runtime": "^1.1.4",
     "jest": "^30.2.0",
-    "memfs": "^4.55.0"
+    "js-yaml": "^4.1.1",
+    "rimraf": "^6.1.2",
+    "rollup": "^2.79.2"
   },
   "repository": {
     "type": "git",
@@ -24,5 +36,8 @@
   "bugs": {
     "url": "https://github.com/bcgov/csit-api-governance-spectral-style-guide/issues"
   },
-  "homepage": "https://github.com/bcgov/csit-api-governance-spectral-style-guide#readme"
+  "homepage": "https://github.com/bcgov/csit-api-governance-spectral-style-guide#readme",
+  "dependencies": {
+    "wink-pos-tagger": "^2.2.2"
+  }
 }
