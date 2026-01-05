@@ -3,7 +3,8 @@
  * 
  * The rule must set 'resolved' to false to avoid violations being detected twice when $ref is used.
  */
-module.exports = function noEmptyPropertyNames(targetVal, options, context) {
+export default (targetVal, _, context) => {
+  
   const results = [];
 
   if (!targetVal || typeof targetVal !== 'object') {
@@ -29,4 +30,4 @@ module.exports = function noEmptyPropertyNames(targetVal, options, context) {
   });
 
   return results;
-};
+}

@@ -1,10 +1,7 @@
-module.exports = function pathSegmentsKebabCase(targetVal, options, context) {
+export default (targetVal, _, context) => {
   const results = [];
 
-  console.log('targetVal= ' +targetVal);
-
   const fullPath = context.path[context.path.length - 1]; // The full path string, e.g. "/users/{id}/Profile"
-  console.log('fullPath= ' +fullPath);
 
   // Split the path into segments, remove leading/trailing empty strings
   const segments = fullPath.split('/').filter(Boolean);
@@ -28,4 +25,4 @@ module.exports = function pathSegmentsKebabCase(targetVal, options, context) {
   });
 
   return results;
-};
+}
