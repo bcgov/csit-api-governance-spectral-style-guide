@@ -82,17 +82,18 @@ describe('Spectral Validation Rules', () => {
       ['operation-description', Severity.Warning, 'Operation "description" must be present and non-empty string.', '/paths/~1double-body/put'],
       ['operation-description', Severity.Warning, 'Operation "description" must be present and non-empty string.', '/paths/~1secure/get'],
       ['operation-description', Severity.Warning, 'Operation "description" must be present and non-empty string.', '/paths/~1exampleMedia/get'],
-      ['operation-id-camel-case', Severity.Warning, 'operationId should be camelCase (starts with lowercase letter, no separators)', '/paths/~1users~1{id}/get/operationId'],
+      ['operation-id-camel-case', Severity.Warning, 'Operation ID \'getUser?\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/paths/~1users~1{id}/get/operationId'],
       ['operation-operationId', Severity.Warning, 'Operation must have "operationId".', '/paths/~1users~1/get'],
       ['operation-operationId', Severity.Warning, 'Operation must have "operationId".', '/paths/~1form-body-mix/post'],
       ['operation-operationId', Severity.Warning, 'Operation must have "operationId".', '/paths/~1double-body/put'],
       ['operation-operationId', Severity.Warning, 'Operation must have "operationId".', '/paths/~1exampleMedia/get'],
       ['operation-success-response', Severity.Warning, 'Operation must have at least one "2xx" or "3xx" response.', '/paths/~1users~1/get/responses'],
       ['path-keys-no-trailing-slash', Severity.Warning, 'Path must not end with slash.', '/paths/~1users~1'],
-      ['path-param-camel-case', Severity.Warning, 'Path parameter names should be camelCase', '/paths/~1users~1{user-id}/get/parameters/0/name'],
-      ['path-segments-kebab-case', Severity.Warning, 'Static path segments should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1exampleMedia'],
-      ['query-param-camel-case', Severity.Warning, 'Query parameter names should be camelCase', '/paths/~1items/parameters/3/name'],
-      ['schema-property-camel-case', Severity.Warning, 'Schema property names in request/response bodies should be camelCase', '/definitions/EnumBad/properties/current-status'],
+      ['path-param-camel-case', Severity.Warning, 'Path parameter name \'user-id\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/paths/~1users~1{user-id}/get/parameters/0/name'],
+      ['path-segments-kebab-case', Severity.Warning, 'Static path segment \'exampleMedia\' should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1exampleMedia'],
+      ['path-segments-kebab-case', Severity.Warning, 'Static path segment \'search?term={term}\' should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1search?term={term}'],
+      ['query-param-camel-case', Severity.Warning, 'Query parameter \'item-id\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/paths/~1items/parameters/3/name'],
+      ['schema-property-camel-case', Severity.Warning, 'Schema property \'current-status\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/definitions/EnumBad/properties/current-status'],
     ];
 
     logActualResults(results);
@@ -126,7 +127,7 @@ describe('Spectral Validation Rules', () => {
       ['oas2-operation-formData-consume-check', Severity.Warning, 'Operations with "in: formData" parameter must include "application/x-www-form-urlencoded" or "multipart/form-data" in their "consumes" property.', '/paths/~1upload/post'],
       ['operation-description', Severity.Warning, 'Operation "description" must be present and non-empty string.', '/paths/~1/get'],
       ['operation-description', Severity.Warning, 'Operation "description" must be present and non-empty string.', '/paths/~1upload/post'],
-      ['operation-id-camel-case', Severity.Warning, 'operationId should be camelCase (starts with lowercase letter, no separators)', '/paths/~1/get/operationId'],
+      ['operation-id-camel-case', Severity.Warning, 'Operation ID \'get root!\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/paths/~1/get/operationId'],
       ['operation-operationId', Severity.Warning, 'Operation must have "operationId".', '/paths/~1upload/post'],
     ];
 
@@ -185,9 +186,9 @@ describe('Spectral Validation Rules', () => {
       ['operation-operationId', Severity.Warning, 'Operation must have "operationId".', '/paths/~1example-media/get'],
       ['operation-success-response', Severity.Warning, 'Operation must have at least one "2xx" or "3xx" response.', '/paths/~1users~1/get/responses'],
       ['path-keys-no-trailing-slash', Severity.Warning, 'Path must not end with slash.', '/paths/~1users~1'],
-      ['path-param-camel-case', Severity.Warning, 'Path parameter names should be camelCase', '/paths/~1users~1{user-id}/parameters/0/name'],
-      ['query-param-camel-case', Severity.Warning, 'Query parameter names should be camelCase', '/paths/~1items/parameters/1/name'],
-      ['schema-property-camel-case', Severity.Warning, 'Schema property names in request/response bodies should be camelCase', '/definitions/EnumBad/properties/current-status'],
+      ['path-param-camel-case', Severity.Warning, 'Path parameter name \'user-id\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/paths/~1users~1{user-id}/parameters/0/name'],
+      ['query-param-camel-case', Severity.Warning, 'Query parameter \'item-id\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/paths/~1items/parameters/1/name'],
+      ['schema-property-camel-case', Severity.Warning, 'Schema property \'current-status\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/definitions/EnumBad/properties/current-status'],
     ];
 
     logActualResults(results);

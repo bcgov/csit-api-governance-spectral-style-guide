@@ -89,7 +89,7 @@ describe('Spectral Validation Rules', () => {
       ['operation-description', Severity.Warning, 'Operation "description" must be present and non-empty string.', '/paths/~1security/get'],
       ['operation-description', Severity.Warning, 'Operation "description" must be present and non-empty string.', '/paths/~1nested-callbacks/post'],
       ['operation-description', Severity.Warning, 'Operation "description" must be present and non-empty string.', '/paths/~1invalidExamples/get'],
-      ['operation-id-camel-case', Severity.Warning, 'operationId should be camelCase (starts with lowercase letter, no separators)', '/paths/~1bad-opid/get/operationId'],
+      ['operation-id-camel-case', Severity.Warning, 'Operation ID \'bad id!@#\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/paths/~1bad-opid/get/operationId'],
       ['operation-operationId', Severity.Warning, 'Operation must have "operationId".', '/paths/~1no-meta/get'],
       ['operation-operationId', Severity.Warning, 'Operation must have "operationId".', '/paths/~1markdown/get'],
       ['operation-operationId', Severity.Warning, 'Operation must have "operationId".', '/paths/~1enum/post'],
@@ -101,10 +101,11 @@ describe('Spectral Validation Rules', () => {
       ['operation-success-response', Severity.Warning, 'Operation must have at least one "2xx" or "3xx" response.', '/paths/~1no-meta/get/responses'],
       ['path-keys-no-trailing-slash', Severity.Warning, 'Path must not end with slash.', '/paths/~1trailing~1'],
       ['path-keys-no-trailing-slash', Severity.Warning, 'Path must not end with slash.', '/paths/~1{}~1'],
-      ['path-param-camel-case', Severity.Warning, 'Path parameter names should be camelCase', '/paths/~1path~1{usedButNotDeclared}/parameters/0/name'],
-      ['path-segments-kebab-case', Severity.Warning, 'Static path segments should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1invalidExamples'],
-      ['query-param-camel-case', Severity.Warning, 'Query parameter names should be camelCase', '/paths/~1dup-param/get/parameters/2/name'],
-      ['schema-property-camel-case', Severity.Warning, 'Schema property names in request/response bodies should be camelCase', '/components/schemas/User/properties/user-name'],
+      ['path-param-camel-case', Severity.Warning, 'Path parameter name \'declared-but-unused\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/paths/~1path~1{usedButNotDeclared}/parameters/0/name'],
+      ['path-segments-kebab-case', Severity.Warning, 'Static path segment \'invalidExamples\' should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1invalidExamples'],
+      ['path-segments-kebab-case', Severity.Warning, 'Static path segment \'query?q\' should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1query?q'],
+      ['query-param-camel-case', Severity.Warning, 'Query parameter \'param-one\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/paths/~1dup-param/get/parameters/2/name'],
+      ['schema-property-camel-case', Severity.Warning, 'Schema property \'user-name\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/components/schemas/User/properties/user-name'],
     ];
 
     logActualResults(results);
