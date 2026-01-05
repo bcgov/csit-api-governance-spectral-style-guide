@@ -206,9 +206,8 @@ describe('Spectral Validation Rules', () => {
       ['path-param-camel-case', Severity.Warning, 'Path parameter name \'filing_type\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/paths/~1pay~1api~1v1~1fees~1{business_type}~1{filing_type}/parameters/1/name'],
       ['path-param-camel-case', Severity.Warning, 'Path parameter name \'invoice_identifier\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/paths/~1pay~1api~1v1~1payment-requests~1{invoice_identifier}/parameters/0/name'],
       ['path-param-camel-case', Severity.Warning, 'Path parameter name \'invoice_identifier\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/paths/~1pay~1api~1v1~1payment-requests~1{invoice_identifier}~1receipts/parameters/0/name'],
+      ['schema-property-camel-case', Severity.Warning, 'Schema property \'_links\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/components/schemas/Invoice/properties/_links'],
       ['schema-property-camel-case', Severity.Warning, 'Schema property \'_links\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/components/schemas/Transaction/properties/_links'],
-      // TODO The warning on object Links appears to be caused by the Invoice $ref using the invalid name '_links' and not the object itself.
-      ['schema-property-camel-case', Severity.Warning, 'Schema property \'Links\' should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/components/schemas/Links'],
     ];
 
     logActualResults(results);

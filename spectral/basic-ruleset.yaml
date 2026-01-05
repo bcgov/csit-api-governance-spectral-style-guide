@@ -1156,6 +1156,7 @@ rules:
     description: Schema property names in request/response bodies should be camelCase
     message: "Schema property '{{property}}' should be camelCase (start with lowercase letter, no special characters except letters and numbers)"
     severity: warn
+    resolved: false   # Key: Run on the unresolved (raw) document to see $ref keywords
     given:
       - $.definitions..properties
       - $.components.schemas..properties
