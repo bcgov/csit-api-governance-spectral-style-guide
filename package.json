@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/bcgov/csit-api-governance-spectral-style-guide/issues"
   },
-  "homepage": "https://github.com/bcgov/csit-api-governance-spectral-style-guide#readme"
+  "homepage": "https://github.com/bcgov/csit-api-governance-spectral-style-guide#readme",
+  "dependencies": {
+    "wink-pos-tagger": "^2.2.2"
+  }
 }

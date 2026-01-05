@@ -1,0 +1,235 @@
+openapi: 3.1.0
+info:
+  title: Mixed Verb Anti-Pattern Demo API - All Casing Styles
+  version: 1.0.0
+  description: |
+    Example OpenAPI document containing both blacklisted and non-blacklisted verbs
+    in realistic compound path segments using multiple casing conventions:
+    • kebab-case (hyphenated)
+    • camelCase
+    • PascalCase
+    • snake_case
+
+    Every operation has a required description.
+    Designed to test verb detection across all common path naming styles.
+
+servers:
+  - url: https://api.production.myapi.com/v1
+
+paths:
+
+  /users:               
+    post:
+      summary: Create a user
+      description: Creates a new user account.
+      operationId: createUser
+      responses:
+        '201':
+          description: User created
+
+  /profiles/{id}: 
+    put:
+      summary: Update profile
+      description: Updates a user profile.
+      operationId: updateProfile
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Profile updated
+
+  /accounts/{id}: 
+    delete:
+      summary: Delete account
+      description: Permanently deletes an account.
+      operationId: deleteAccount
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '204':
+          description: Account deleted
+
+  /sessions:
+    post:
+      summary: User login 
+      description: Authenticates a user.
+      operationId: loginUser
+      responses:
+        '200':
+          description: Login successful
+
+  /carts/{id}/orders: 
+    post:
+      summary: Checkout cart
+      description: Completes checkout for a cart.
+      operationId: checkoutCart
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Checkout completed
+
+  /backups/{id}:         # blacklisted "download"
+    get:
+      summary: Download backup
+      description: Streams a backup archive.
+      operationId: downloadBackup
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Download started
+
+  /invoices/{id}/pdfs:
+    post:
+      summary: Generate PDF
+      description: Generates a PDF invoice.
+      operationId: generatePdf
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '202':
+          description: PDF generation started
+
+  /jobs/{id}/executions:
+    post:
+      summary: Start processing
+      description: Initiates background processing.
+      operationId: startProcessing
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '202':
+          description: Processing started
+
+  /caches/synchronizationRequests:        
+    post:
+      summary: Force sync
+      description: Forces immediate cache synchronization.
+      operationId: forceSync
+      responses:
+        '200':
+          description: Sync forced
+
+  /reports/{id}/exports:
+    post:
+      summary: Trigger export
+      description: Starts asynchronous report export.
+      operationId: triggerExport
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '202':
+          description: Export triggered
+
+  /documents/{id}:
+      get:
+        summary: Retrieve document or preview
+        description: |
+          Returns the document resource.
+          Use the Accept header to request a preview representation:
+          - image/png or image/jpeg → visual preview/thumbnail
+          - application/pdf → PDF preview
+          - application/json (default) → document metadata
+        operationId: getDocument
+        parameters:
+          - $ref: '#/components/parameters/IdParam'
+          - name: Accept
+            in: header
+            description: Desired representation format
+            schema:
+              type: string
+              enum:
+                - application/json
+                - application/pdf
+              default: application/json
+        responses:
+          '200':
+            description: Document representation
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Document'
+              application/pdf:
+                schema:
+                  type: string
+                  format: binary
+
+  # This is an example of a false positive.  'totals' is a valid plural noun but is being eroneously identified as a verb.
+  # We could add 'totals' to the allowed list, the warning can just be ignored, or another variation like 'total' can be
+  # used to avoid the warning.
+  /orders/{id}/totals:        
+    get:
+      summary: Calculate totals
+      description: Computes order totals.
+      operationId: calculateTotals
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Totals calculated
+
+  /tokens/cache-refreshes:
+    post:
+      summary: Refresh cache
+      description: Refreshes the token cache.
+      operationId: refreshCache
+      responses:
+        '200':
+          description: Cache refreshed
+
+  # This is an example of a false negative.  The word 'book' is being used as a verb in this context but is not being identified as a verb 
+  # because 'book' is also commonly used as a noun.  
+  # We could add 'book' to the blacklist or the disallowed list but we may not want to prevent APIs from using it as a noun.
+  /reservations/book:              
+    post:
+      summary: Take a reservation
+      description: Take a reservation.
+      operationId: takeReservation
+      responses:
+        '200':
+          description: Reservation taken.
+
+  # This is an example of a false negative.  The word 'import' is being used as a verb in this context but is not being identified as a verb 
+  # because 'import' is also commonly used as a noun.  
+  # In this case we have added it to the disallowed list so that it can be flagged as a warning.
+  /uploads/import-file:              
+    post:
+      summary: Import file
+      description: Imports data from an uploaded file.
+      operationId: importFile
+      responses:
+        '202':
+          description: Import started
+
+components:
+  schemas:
+      Document:
+        type: object
+        required:
+          - id
+          - title
+          - content
+        properties:
+          id:
+            type: string
+            description: Unique identifier of the document
+            example: doc_3fa85f64-5717-4562-b3fc-2c963f66afa6
+          title:
+            type: string
+            description: Human-readable title of the document
+            example: Annual Financial Report 2025
+          content:
+            type: string
+            description: Content of the document
+            example: This is the document content.
+  parameters:
+    IdParam:
+      name: id
+      in: path
+      description: Unique identifier of the resource
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: 3fa85f64-5717-4562-b3fc-2c963f66afa6

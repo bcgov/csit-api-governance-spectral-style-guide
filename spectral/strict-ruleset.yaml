@@ -1,0 +1,34 @@
+extends: ./basic-ruleset.yaml
+
+functions:
+  - path-segments-no-verbs-blacklist
+  - path-segments-no-verbs-probable
+
+rules:
+  # Strict enforcement: known verb anti-patterns → hard error
+  path-segments-no-verbs-blacklist:
+    description: Path segments must not contain blacklisted verbs (e.g., create, update, validate)
+    message: "{{error}}"
+    severity: error
+    given: $.paths
+    then:
+      field: "@key"
+      function: path-segments-no-verbs-blacklist
+
+  # Softer guidance: probable verbs detected by NLP → warning only
+  path-segments-no-verbs-probable:
+    description: Path segments should preferably be nouns (NLP heuristic, excludes blacklisted verbs)
+    message: "{{error}}"
+    severity: warn
+    given: $.paths
+    then:
+      field: "@key"
+      function: path-segments-no-verbs-probable
+      functionOptions:
+        skipBlacklisted: true
+        allowed:
+          - file
+        disallowed:
+          - import
+
+  path-segments-kebab-case: off

@@ -1,0 +1,237 @@
+openapi: 3.1.0
+info:
+  title: Mixed Verb Anti-Pattern Demo API - All Casing Styles
+  version: 1.0.0
+  description: |
+    Example OpenAPI document containing both blacklisted and non-blacklisted verbs
+    in realistic compound path segments using multiple casing conventions:
+    • kebab-case (hyphenated)
+    • camelCase
+    • PascalCase
+    • snake_case
+
+    Every operation has a required description.
+    Designed to test verb detection across all common path naming styles.
+
+servers:
+  - url: https://api.production.myapi.com/v1
+
+paths:
+
+  /users/create:                        #  blacklisted "create"
+    post:
+      summary: Create a user
+      description: Creates a new user account. The segment "create" is blacklisted.
+      operationId: createUserKebab
+      responses:
+        '201':
+          description: User created
+
+  /users/createUser:                    #  blacklisted "create"
+    post:
+      summary: Create user (camelCase)
+      description: Creates a new user account. The compound camelCase segment "createUser" contains the blacklisted verb "create".
+      operationId: createUserCamel
+      responses:
+        '201':
+          description: User created
+
+  /users/create_user:                   #  blacklisted "create"
+    post:
+      summary: Create user (snake_case)
+      description: Creates a new user account. The compound snake_case segment "create_user" contains the blacklisted verb "create".
+      operationId: createUserSnake
+      responses:
+        '201':
+          description: User created
+
+  /profiles/{id}/update-profile:        # blacklisted "update"
+    put:
+      summary: Update profile (kebab)
+      description: Updates a user profile. The segment "update-profile" contains the blacklisted verb "update".
+      operationId: updateProfileKebab
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Profile updated
+
+  /profiles/{id}/updateProfile:         # blacklisted "update"
+    put:
+      summary: Update profile (camelCase)
+      description: Updates a user profile. The compound camelCase segment "updateProfile" contains the blacklisted verb "update".
+      operationId: updateProfileCamel
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Profile updated
+
+  /accounts/{id}/deleteAccount:         # blacklisted "delete"
+    delete:
+      summary: Delete account (PascalCase)
+      description: Permanently deletes an account. The compound PascalCase segment "deleteAccount" contains the blacklisted verb "delete".
+      operationId: deleteAccountPascal
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '204':
+          description: Account deleted
+
+  /sessions/login_user:                 # blacklisted "login"
+    post:
+      summary: User login (snake_case)
+      description: Authenticates a user. The compound snake_case segment "login_user" contains the blacklisted verb "login".
+      operationId: loginUserSnake
+      responses:
+        '200':
+          description: Login successful
+
+  /carts/{id}/checkout-cart:            # blacklisted "checkout"
+    post:
+      summary: Checkout cart (kebab)
+      description: Completes checkout for a cart. The segment "checkout-cart" contains the blacklisted verb "checkout".
+      operationId: checkoutCartKebab
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Checkout completed
+
+  /backups/{id}/download-backup:         # blacklisted "download"
+    get:
+      summary: Download backup (kebab)
+      description: Streams a backup archive. The compound kebab segment "download-backup" is verb-like and should trigger a warning.
+      operationId: downloadBackupKebab
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Download started
+
+  /backups/{id}/downloadBackup:         # blacklisted "download"
+    get:
+      summary: Download backup (camelCase)
+      description: Streams a backup archive. The compound camelCase segment "downloadBackup" is verb-like and should trigger a warning.
+      operationId: downloadBackupCamel
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Download started
+
+  /backups/{id}/DownloadBackup:         # blacklisted "download"
+    get:
+      summary: Download backup (PascalCase)
+      description: Streams a backup archive. The compound PascalCase segment "DownloadBackup" is verb-like and should trigger a warning.
+      operationId: downloadBackupPascal
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Download started
+
+  /invoices/{id}/generate_pdf:          # Likely verb "generate"
+    post:
+      summary: Generate PDF (snake_case)
+      description: Generates a PDF invoice. The compound snake_case segment "generate_pdf" is verb-like and should trigger a warning.
+      operationId: generatePdfSnake
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '202':
+          description: PDF generation started
+
+  /jobs/{id}/start-processing:          # Likely verb "start"
+    post:
+      summary: Start processing (kebab)
+      description: Initiates background processing. The compound segment "start-processing" is verb-like and should trigger a warning.
+      operationId: startProcessingKebab
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '202':
+          description: Processing started
+
+  /jobs/{id}/startProcessing:           # Likely verb "start"
+    post:
+      summary: Start processing (camelCase)
+      description: Initiates background processing. The compound camelCase segment "startProcessing" is verb-like and should trigger a warning.
+      operationId: startProcessingCamel
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '202':
+          description: Processing started
+
+  /caches/force_sync:                   # blacklisted "sync"
+    post:
+      summary: Force sync (snake_case)
+      description: Forces immediate cache synchronization. The compound snake_case segment "force_sync" is verb-like and should trigger a warning.
+      operationId: forceSyncSnake
+      responses:
+        '200':
+          description: Sync forced
+
+  /caches/synchronize:                   # Likely verb "synchronize"
+    post:
+      summary: Force sync (snake_case)
+      description: Forces immediate cache synchronization. The compound snake_case segment "force_sync" is verb-like and should trigger a warning.
+      operationId: forceSynchronize
+      responses:
+        '200':
+          description: Sync forced
+
+  /reports/{id}/triggerExport:          # Likely verb "trigger"
+    post:
+      summary: Trigger export (camelCase)
+      description: Starts asynchronous report export. The compound camelCase segment "triggerExport" is verb-like and should trigger a warning.
+      operationId: triggerExportCamel
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '202':
+          description: Export triggered
+
+  /documents/{id}/renderPreview:        # Likely verb "render"
+    get:
+      summary: Render preview (camelCase)
+      description: Generates a document preview. The compound camelCase segment "renderPreview" is verb-like and should trigger a warning.
+      operationId: renderPreviewCamel
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Preview rendered
+
+  /orders/{id}/calculate-total:        # Likely verb "calculate"
+    get:
+      summary: Calculate totals (kebab)
+      description: Computes order totals. The compound kebab segment "calculate-totals" is verb-like and should trigger a warning.
+      operationId: calculateTotalsKebab
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Totals calculated
+
+  /tokens/refresh_cache:                # blacklisted "refresh"
+    post:
+      summary: Refresh cache (snake_case)
+      description: Refreshes the token cache. The compound snake_case segment "refresh_cache" is verb-like and should trigger a warning.
+      operationId: refreshCacheSnake
+      responses:
+        '200':
+          description: Cache refreshed
+
+components:
+  parameters:
+    IdParam:
+      name: id
+      in: path
+      description: Unique identifier of the resource
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
