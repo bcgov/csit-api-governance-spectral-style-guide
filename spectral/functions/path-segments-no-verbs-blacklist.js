@@ -30,8 +30,19 @@ export const isBlacklisted = (segment) => {
   return false;
 };
 
-export default (targetVal, _, context) => {
+export default (_, opts, context) => {
   const results = [];
+
+  const {
+    debug = false,
+  } = opts || {};
+
+  // Conditional logging helper
+  const log = (...args) => {
+    if (debug) {
+      console.log(...args);
+    }
+  };
 
   const fullPath = context.path[context.path.length - 1];
   if (!fullPath || typeof fullPath !== 'string') return results;
@@ -43,25 +54,25 @@ export default (targetVal, _, context) => {
       return;
     }
 
-    console.log(`\n[BLACKLIST] Analyzing segment: "${segment}"`);
+    log(`\n[BLACKLIST] Analyzing segment: "${segment}"`);
 
     const words = splitIntoWords(segment);
-    console.log(`[BLACKLIST]   Split into words: [${words.join(', ')}]`);
+    log(`[BLACKLIST]   Split into words: [${words.join(', ')}]`);
 
     let foundBlacklisted = false;
     let badWord = null;
 
     for (const word of words) {
       
-      console.log(`[BLACKLIST]     Checking word: "${word}"`);
+      log(`[BLACKLIST]     Checking word: "${word}"`);
 
       if (blacklistedVerbs.has(word)) {
         foundBlacklisted = true;
         badWord = word;
-        console.log(`[BLACKLIST]     BLACKLISTED VERB FOUND: "${badWord}"`);
+        log(`[BLACKLIST]     BLACKLISTED VERB FOUND: "${badWord}"`);
         break;
       } else {
-        console.log(`[BLACKLIST]     Not blacklisted`);
+        log(`[BLACKLIST]     Not blacklisted`);
       }
     }
 
@@ -71,7 +82,7 @@ export default (targetVal, _, context) => {
         path: context.path,
       });
     } else {
-      console.log(`[BLACKLIST]   No blacklisted verb detected`);
+      log(`[BLACKLIST]   No blacklisted verb detected`);
     }
   });
 

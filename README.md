@@ -106,3 +106,9 @@ extends:
 | IntelliJ users                | Point plugin to the ruleset or extend from a project ruleset     |
 
 By centralizing common rules in `/spectral/basic-ruleset.yaml`, teams can enforce consistent API standards while still allowing project-specific customization.
+
+## Running Spectral on the CLI
+
+Example ```
+npx @stoplight/spectral-cli lint __tests__/src/resources/strict/verbs/invalid.yaml --ruleset spectral/strict-ruleset.yaml --verbose
+```

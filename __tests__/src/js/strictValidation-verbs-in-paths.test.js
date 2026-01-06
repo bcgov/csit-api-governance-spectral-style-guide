@@ -32,7 +32,20 @@ describe('Spectral Validation Rules', () => {
     const document = new Document(source, Parsers.Yaml, oasFile);
     const results = await spectral.run(document);
 
-    const expectedResults = [       
+    const expectedResults = [
+      ['path-segments-kebab-case', Severity.Error, 'Static path segment \'create_user\' should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1users~1create_user'],
+      ['path-segments-kebab-case', Severity.Error, 'Static path segment \'createUser\' should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1users~1createUser'],
+      ['path-segments-kebab-case', Severity.Error, 'Static path segment \'deleteAccount\' should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1accounts~1{id}~1deleteAccount'],
+      ['path-segments-kebab-case', Severity.Error, 'Static path segment \'downloadBackup\' should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1backups~1{id}~1downloadBackup'],
+      ['path-segments-kebab-case', Severity.Error, 'Static path segment \'DownloadBackup\' should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1backups~1{id}~1DownloadBackup'],
+      ['path-segments-kebab-case', Severity.Error, 'Static path segment \'force_sync\' should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1caches~1force_sync'],
+      ['path-segments-kebab-case', Severity.Error, 'Static path segment \'generate_pdf\' should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1invoices~1{id}~1generate_pdf'],
+      ['path-segments-kebab-case', Severity.Error, 'Static path segment \'login_user\' should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1sessions~1login_user'],
+      ['path-segments-kebab-case', Severity.Error, 'Static path segment \'refresh_cache\' should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1tokens~1refresh_cache'],
+      ['path-segments-kebab-case', Severity.Error, 'Static path segment \'renderPreview\' should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1documents~1{id}~1renderPreview'],
+      ['path-segments-kebab-case', Severity.Error, 'Static path segment \'startProcessing\' should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1jobs~1{id}~1startProcessing'],
+      ['path-segments-kebab-case', Severity.Error, 'Static path segment \'triggerExport\' should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1reports~1{id}~1triggerExport'],
+      ['path-segments-kebab-case', Severity.Error, 'Static path segment \'updateProfile\' should be kebab-case (lowercase letters, numbers, hyphens only)', '/paths/~1profiles~1{id}~1updateProfile'],
       ['path-segments-no-verbs-blacklist', Severity.Error, 'Path segment "checkout-cart" contains blacklisted verb "checkout". Use nouns only.', '/paths/~1carts~1{id}~1checkout-cart'],
       ['path-segments-no-verbs-blacklist', Severity.Error, 'Path segment "create_user" contains blacklisted verb "create". Use nouns only.', '/paths/~1users~1create_user'],
       ['path-segments-no-verbs-blacklist', Severity.Error, 'Path segment "create" contains blacklisted verb "create". Use nouns only.', '/paths/~1users~1create'],

@@ -1,5 +1,20 @@
-# Title: OpenAPI Style Guide
-# This is the description for the document.
+# Title: Basic OpenAPI Style Guide
+# This Spectral ruleset enforces a clean, consistent, and modern OpenAPI (OAS 2 and OAS 3) style focused on developer experience and code-generation friendliness.
+# Key conventions enforced:
+
+# operationId: camelCase (starting with lowercase, alphanumeric only)
+# Static path segments: kebab-case (lowercase letters, numbers, and hyphens only)
+# Path and query parameter names: camelCase
+# Schema property names (request/response bodies): camelCase
+# No empty property names in schemas
+
+# In addition to these custom naming rules, it includes a comprehensive set of Spectral’s built-in oas rules covering:
+
+# Structural validity and well-formedness (e.g., unique operationIds, proper $ref usage, correct path parameter declarations)
+# Prevention of common mistakes (e.g., duplicated enum values, invalid examples, misplaced query strings in paths)
+# Recommended best practices as warnings (e.g., requiring info description, operation descriptions, success responses, avoiding trailing slashes, example.com hosts, and unused components)
+
+# This ruleset encourages code-friendly identifiers (operationIds, parameters, payload fields) while using kebab-case for URL paths, aligning with widely adopted practices in JavaScript/TypeScript ecosystems and major API style guides.
 extends: spectral:oas
 
 functions:
@@ -27,6 +42,7 @@ rules:
   #       type: string
   #       enum: [active, inactive, active]
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   duplicated-entry-in-enum: error
   # $ref siblings are ignored before 3.1.0
   # Valid example:
@@ -44,6 +60,7 @@ rules:
   #       $ref: '#/components/schemas/UserRef'
   #       type: object
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   no-$ref-siblings: error
   # Every operation must have a unique operationId.
   # Valid example:
@@ -66,6 +83,7 @@ rules:
   #     get:
   #       operationId: listUsers
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   operation-operationId-unique: error
   # Operation ID must avoid non-URL-safe characters
   # Valid example:
@@ -89,6 +107,7 @@ rules:
   #     get:
   #       operationId: list<Users
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   operation-operationId-valid-in-url: error
   # Operation parameters are unique and non-repeating
   # 1. Operation must have unique name + in parameters.
@@ -132,6 +151,7 @@ rules:
   #           in: formData
   #           type: file
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   operation-parameters: error
   # Path parameter declarations cannot be empty, ex./given/{} is invalid.
   # Valid example:
@@ -148,6 +168,7 @@ rules:
   #     get:
   #       operationId: getUser
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   path-declarations-must-exist: error
   # Don't put query string items in the path, they belong in parameters.
   # Valid example:
@@ -168,6 +189,7 @@ rules:
   #     get:
   #       operationId: listActiveUsers
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   path-not-include-query: error
   # Path parameters are correct and valid.
   # 1. For every parameter referenced in the path string (i.e: /users/{userId}), the parameter must be defined in either path.parameters, 
@@ -206,6 +228,7 @@ rules:
   #     get:
   #       operationId: getUser
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   path-params: error
   # Enum values should respect the type specifier.
   # Valid example:
@@ -224,6 +247,7 @@ rules:
   #       type: string
   #       enum: [200, 404, 500]
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   typed-enum: error
   # OpenAPI v3 keyword anyOf detected in OpenAPI v2 document.
   # Valid example:
@@ -242,6 +266,7 @@ rules:
   #       anyOf:
   #         - $ref: '#/components/schemas/Cat'
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas2-anyOf: error
   # OpenAPI v3 keyword oneOf detected in OpenAPI v2 document.
   # Valid example:
@@ -260,6 +285,7 @@ rules:
   #       oneOf:
   #         - $ref: '#/components/schemas/Success'
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas2-oneOf: error
   # Validate structure of OpenAPI v2 specification.
   # Valid example:
@@ -277,6 +303,7 @@ rules:
   #   version: '1.0'
   # paths: {}
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas2-schema: error
   # Examples for requestBody or response examples can have an externalValue or a value, but they cannot have both.
   # Valid example:
@@ -302,6 +329,7 @@ rules:
   #               id: 123
   #             externalValue: 'https://example.com/example.json'
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas3-examples-value-or-externalValue: error
   # Operation security values must match a scheme defined in the components.securitySchemes object.
   # Valid example:
@@ -329,6 +357,7 @@ rules:
   #       security:
   #         - bearerAuth: []
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas3-operation-security-defined: error
   # Validate structure of OpenAPI v3 specification.
   # Valid example:
@@ -346,6 +375,7 @@ rules:
   #   version: 1.0.0
   # paths: {}
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas3-schema: error
 
   # Section: Required Content
@@ -373,6 +403,7 @@ rules:
   #   description: ""
   #   version: 1.0.0
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   info-description: warn 
   # No injecting eval() JavaScript statements
   # Valid example:
@@ -385,6 +416,7 @@ rules:
   # info:
   #   description: "Use eval(`dangerous`)."
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   no-eval-in-markdown: warn 
   # No injecting script tags
   # Valid example:
@@ -397,6 +429,7 @@ rules:
   # info:
   #   description: <script>alert()</script>
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   no-script-tags-in-markdown: warn 
   # OpenAPI object should have alphabetical tags. 
   # Valid example:
@@ -411,6 +444,7 @@ rules:
   #   - name: users
   #   - name: admins
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   openapi-tags-alphabetical: warn
   # OpenAPI object must not have duplicated tag names (identifiers).
   # Valid example:
@@ -425,6 +459,7 @@ rules:
   #   - name: users
   #   - name: users
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   openapi-tags-uniqueness: warn
   # Operation must have a description
   # Valid example:
@@ -448,6 +483,7 @@ rules:
   #     get:
   #       description: ""
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   operation-description: warn 
   # Operation must have an operationId
   # Valid example:
@@ -464,6 +500,7 @@ rules:
   #     get:
   #       summary: List users
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   operation-operationId: warn 
   # Operation must have at least one 2xx or 3xx response.
   # Valid example:
@@ -484,6 +521,7 @@ rules:
   #         '400':
   #           description: Bad Request
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   operation-success-response: warn 
   # Keep trailing slashes off of paths, as it can causes ambiguity.
   # Valid example:
@@ -500,6 +538,7 @@ rules:
   #     get:
   #       operationId: listUsers
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   path-keys-no-trailing-slash: warn
   # Schemas with type: array, require a sibling items field.
   # Valid example:
@@ -518,6 +557,7 @@ rules:
   #     UserList:
   #       type: array
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   array-items: warn
   # OpenAPI host must be present and non-empty string.
   # Valid example:
@@ -534,6 +574,7 @@ rules:
   # swagger: '2.0'
   # host: ""
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas2-api-host: warn
   # OpenAPI host schemes must be present and non-empty array.
   # Valid example:
@@ -551,6 +592,7 @@ rules:
   # swagger: '2.0'
   # schemes: []
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas2-api-schemes: warn
   # The discriminator property MUST be defined at this schema and it MUST be in the required property list.
   # Valid example:
@@ -575,6 +617,7 @@ rules:
   #       petType:
   #         type: string
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas2-discriminator: warn
   # Server URL should not point to example.com.
   # Valid example:
@@ -587,6 +630,7 @@ rules:
   # swagger: '2.0'
   # host: example.com
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas2-host-not-example: warn
   # Server URL should not have a trailing slash.
   # Valid example:
@@ -599,6 +643,7 @@ rules:
   # swagger: '2.0'
   # host: api.com/
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas2-host-trailing-slash: warn
   # Operations with an in: formData parameter must include application/x-www-form-urlencoded or multipart/form-data in their consumes property.
   # Valid example:
@@ -625,6 +670,7 @@ rules:
   #           in: formData
   #           type: file
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas2-operation-formData-consume-check: warn
   # Operation security values must match a scheme defined in the securityDefinitions object.
   # Valid example:
@@ -651,6 +697,7 @@ rules:
   #       security:
   #         - bearerAuth: []
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas2-operation-security-defined: warn
   # Potential unused reusable definition entry has been detected.
   # Valid example:
@@ -674,6 +721,7 @@ rules:
   #   User:
   #     type: object
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas2-unused-definition: warn
   # Examples must be valid against their defined schema.  This rule is applied to Media Type objects.
   # Common reasons you may see errors are:
@@ -717,6 +765,7 @@ rules:
   #             application/json:
   #               id: "one"
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas2-valid-media-example: warn
   # Examples must be valid against their defined schema. This rule is applied to Schema objects.
   # Valid example:
@@ -743,6 +792,7 @@ rules:
   #     example:
   #       id: "one"
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas2-valid-schema-example: warn
   # A callback should not be defined within another callback.
   # Valid example:
@@ -777,6 +827,7 @@ rules:
   #                         '200':
   #                           description: OK
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas3-callbacks-in-callbacks: warn
   # Server URL should not point to example.com.
   # Valid example:
@@ -791,6 +842,7 @@ rules:
   # servers:
   #   - url: https://example.com
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas3-server-not-example.com: warn
   # Server URL should not have a trailing slash.
   # Valid example:
@@ -805,6 +857,7 @@ rules:
   # servers:
   #   - url: https://api.com/
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas3-server-trailing-slash: warn
   # This rule ensures that server variables defined in OpenAPI Specification 3 (OAS3) and 3.1 are valid, not unused, and result in a valid URL. 
   # Valid example:
@@ -825,6 +878,7 @@ rules:
   #       subdomain:
   #         default: demo
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas3-server-variables: warn
   # Potential unused reusable components entry has been detected.
   # Valid example:
@@ -852,6 +906,7 @@ rules:
   #     User:
   #       type: object
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas3-unused-component: warn
   # Examples must be valid against their defined schema. This rule is applied to Media Type objects.
   # Valid example:
@@ -890,6 +945,7 @@ rules:
   #               example:
   #                 id: "one"
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas3-valid-media-example: warn
   # Examples must be valid against their defined schema. This rule is applied to Schema objects.
   # Valid example:
@@ -918,6 +974,7 @@ rules:
   #       example:
   #         id: "one"
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas3-valid-schema-example: warn
   # Callbacks should not be defined in a webhook.
   # Valid example:
@@ -944,6 +1001,7 @@ rules:
   #                 '200':
   #                   description: OK
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas3_1-callbacks-in-webhook: warn
   # Servers should not be defined in a webhook.
   # Valid example:
@@ -968,7 +1026,45 @@ rules:
   #         '200':
   #           description: OK
   # ```
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas3_1-servers-in-webhook: warn
+  # Parameter objects should have a description.
+  # Valid example:
+  # ```yaml
+  # parameters:
+  #   - name: userId
+  #     in: path
+  #     required: true
+  #     description: The unique identifier of the user
+  #     schema:
+  #       type: string
+  #       format: uuid
+  # ```
+  #
+  # Invalid example (missing description):
+  # ```yaml
+  # parameters:
+  #   - name: userId
+  #     in: path
+  #     required: true
+  #     # Missing description
+  #     schema:
+  #       type: string
+  #       format: uuid
+  # ```
+  #
+  # Invalid example (empty description):
+  # ```yaml
+  # parameters:
+  #   - name: userId
+  #     in: path
+  #     required: true
+  #     description: ""
+  #     schema:
+  #       type: string
+  # ```  
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
+  oas3-parameter-description: warn
 
   # operationId: camelCase
   # CamelCase is the most widely adopted convention for operationId across major API providers
@@ -1204,29 +1300,147 @@ rules:
     then:
       function: no-empty-property-names
 
+  # Every operation must have a summary (short one-line overview)
+  # Summary is ideal for list views and quick scanning in tools like Swagger UI.
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       summary: List all users
+  #       description: Returns a paginated list of users.
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       # Missing summary
+  #       description: Returns a paginated list of users.
+  # ```
+  # Invalid example (empty):
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       summary: ""
+  #       description: Returns a paginated list of users.
+  # ```
+  operation-summary:
+    description: Every operation must have a non-empty summary
+    message: "Operation is missing a summary or it is empty."
+    severity: warn
+    given: $..[get,put,post,delete,patch,options,head,trace]
+    then:
+      field: summary
+      function: truthy
+
+  # Every schema definition must have an 'example' directly on it
+  # This enforces that reusable component schemas and inline schemas provide
+  # a canonical example.
+  #
+  # Valid example (component schema with example):
+  # ```yaml
+  # components:
+  #   schemas:
+  #     User:
+  #       type: object
+  #       properties:
+  #         id:
+  #           type: string
+  #           format: uuid
+  #         name:
+  #           type: string
+  #       required:
+  #         - id
+  #       example:                                   # ← Required on definition
+  #         id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+  #         name: "John Doe"
+  # ```
+  #
+  # Valid example (inline schema with example):
+  # ```yaml
+  # responses:
+  #   '200':
+  #     content:
+  #       application/json:
+  #         schema:
+  #           type: array
+  #           items:
+  #             type: string
+  #           example: ["apple", "banana", "cherry"]   # ← Required on definition
+  # ```
+  #
+  # Valid (pure $ref — no local schema body → rule does not apply):
+  # ```yaml
+  # responses:
+  #   '200':
+  #     content:
+  #       application/json:
+  #         schema:
+  #           $ref: '#/components/schemas/User'       # ← No local example required
+  # ```
+  #
+  # Valid (optional override next to $ref — allowed but not required):
+  # ```yaml
+  # schema:
+  #   $ref: '#/components/schemas/User'
+  #   example:                                     # ← Optional context-specific
+  #     id: "999"
+  #     name: "Admin User"
+  # ```
+  schema-example-required:
+    description: Every schema definition must have an 'example' directly on it
+    message: "Schema definition requires an example."
+    severity: warn 
+    formats: [oas3]
+    resolved: false   # Important: keeps $ref as-is so we don't see resolved content
+    given:
+          - $.components.schemas.*                                # All component schemas
+          - $..schema[?(@ && @ != null && (@.type || @.properties || @.items || 
+              @.allOf || @.oneOf || @.anyOf || @.not
+            ))]
+          - $..items[?(@ && @ != null && (@.type || @.properties || 
+              @.allOf || @.oneOf || @.anyOf || @.not
+            ))]
+    then:
+      field: example
+      function: truthy
+
   # Section: Optional Content
   
   # A contact object is required, including name, url, and email.
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   contact-properties: off
   # Info object should contain contact object.
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   info-contact: off
   # The info object should have a license key.
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   info-license: off 
   # Mentioning a license is only useful if people know what the license means, so add a link to the full text for those who need it.
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   license-url: off 
   # OpenAPI object should have non-empty tags array.
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   openapi-tags: off 
   # Use just one tag for an operation
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   operation-singular-tag: off 
   # Operation should have non-empty tags array.
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   operation-tag-defined: off 
   # Operation tags should be defined in global tags.
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   operation-tags: off 
   # A tag should have a description.
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   tag-description: off
   # Parameter objects should have a description.
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas2-parameter-description: off
   # OpenAPI servers must be present and non-empty array.
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules)for details.
   oas3-api-servers: off
-  # Parameter objects should have a description.
-  oas3-parameter-description: off

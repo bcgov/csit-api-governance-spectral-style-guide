@@ -16,10 +16,45 @@ info:
 servers:
   - url: https://api.production.myapi.com/v1
 
+# Global tags declaration – sorted alphabetically by name to satisfy openapi-tags-alphabetical
+tags:
+  - name: accounts
+    description: Operations related to accounts
+  - name: backups
+    description: Backup management operations
+  - name: caches
+    description: Cache management operations
+  - name: carts
+    description: Shopping cart and checkout operations
+  - name: documents
+    description: Document retrieval and preview
+  - name: invoices
+    description: Invoice and PDF generation operations
+  - name: jobs
+    description: Background job processing
+  - name: orders
+    description: Order-related operations
+  - name: profiles
+    description: Operations related to user profiles
+  - name: reports
+    description: Report generation and export
+  - name: reservations
+    description: Reservation management
+  - name: sessions
+    description: Authentication and session management
+  - name: tokens
+    description: Token and cache refresh operations
+  - name: uploads
+    description: File upload and import operations
+  - name: users
+    description: Operations related to user accounts
+
 paths:
 
   /users:               
     post:
+      tags:
+        - users
       summary: Create a user
       description: Creates a new user account.
       operationId: createUser
@@ -29,6 +64,8 @@ paths:
 
   /profiles/{id}: 
     put:
+      tags:
+        - profiles
       summary: Update profile
       description: Updates a user profile.
       operationId: updateProfile
@@ -40,6 +77,8 @@ paths:
 
   /accounts/{id}: 
     delete:
+      tags:
+        - accounts
       summary: Delete account
       description: Permanently deletes an account.
       operationId: deleteAccount
@@ -51,6 +90,8 @@ paths:
 
   /sessions:
     post:
+      tags:
+        - sessions
       summary: User login 
       description: Authenticates a user.
       operationId: loginUser
@@ -60,6 +101,8 @@ paths:
 
   /carts/{id}/orders: 
     post:
+      tags:
+        - carts
       summary: Checkout cart
       description: Completes checkout for a cart.
       operationId: checkoutCart
@@ -71,6 +114,8 @@ paths:
 
   /backups/{id}:         # blacklisted "download"
     get:
+      tags:
+        - backups
       summary: Download backup
       description: Streams a backup archive.
       operationId: downloadBackup
@@ -82,6 +127,8 @@ paths:
 
   /invoices/{id}/pdfs:
     post:
+      tags:
+        - invoices
       summary: Generate PDF
       description: Generates a PDF invoice.
       operationId: generatePdf
@@ -93,6 +140,8 @@ paths:
 
   /jobs/{id}/executions:
     post:
+      tags:
+        - jobs
       summary: Start processing
       description: Initiates background processing.
       operationId: startProcessing
@@ -102,8 +151,10 @@ paths:
         '202':
           description: Processing started
 
-  /caches/synchronizationRequests:        
+  /caches/synchronization-requests:        
     post:
+      tags:
+        - caches
       summary: Force sync
       description: Forces immediate cache synchronization.
       operationId: forceSync
@@ -113,6 +164,8 @@ paths:
 
   /reports/{id}/exports:
     post:
+      tags:
+        - reports
       summary: Trigger export
       description: Starts asynchronous report export.
       operationId: triggerExport
@@ -124,6 +177,8 @@ paths:
 
   /documents/{id}:
       get:
+        tags:
+          - documents        
         summary: Retrieve document or preview
         description: |
           Returns the document resource.
@@ -160,6 +215,8 @@ paths:
   # used to avoid the warning.
   /orders/{id}/totals:        
     get:
+      tags:
+        - orders
       summary: Calculate totals
       description: Computes order totals.
       operationId: calculateTotals
@@ -171,6 +228,8 @@ paths:
 
   /tokens/cache-refreshes:
     post:
+      tags:
+        - tokens
       summary: Refresh cache
       description: Refreshes the token cache.
       operationId: refreshCache
@@ -183,6 +242,8 @@ paths:
   # We could add 'book' to the blacklist or the disallowed list but we may not want to prevent APIs from using it as a noun.
   /reservations/book:              
     post:
+      tags:
+        - reservations
       summary: Take a reservation
       description: Take a reservation.
       operationId: takeReservation
@@ -195,6 +256,8 @@ paths:
   # In this case we have added it to the disallowed list so that it can be flagged as a warning.
   /uploads/import-file:              
     post:
+      tags:
+        - uploads
       summary: Import file
       description: Imports data from an uploaded file.
       operationId: importFile

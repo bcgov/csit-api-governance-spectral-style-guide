@@ -16,10 +16,41 @@ info:
 servers:
   - url: https://api.production.myapi.com/v1
 
+# Global tags – sorted alphabetically by name to satisfy openapi-tags-alphabetical
+tags:
+  - name: accounts
+    description: Account-related operations demonstrating verb anti-patterns
+  - name: backups
+    description: Backup download operations in various casings
+  - name: caches
+    description: Cache synchronization operations
+  - name: carts
+    description: Cart checkout operations
+  - name: documents
+    description: Document preview rendering operations
+  - name: invoices
+    description: Invoice PDF generation operations
+  - name: jobs
+    description: Background job start operations
+  - name: orders
+    description: Order total calculation operations
+  - name: profiles
+    description: Profile update operations in various casings
+  - name: reports
+    description: Report export triggering operations
+  - name: sessions
+    description: Session login operations
+  - name: tokens
+    description: Token cache refresh operations
+  - name: users
+    description: User creation operations in various casings
+
 paths:
 
   /users/create:                        #  blacklisted "create"
     post:
+      tags:
+        - users
       summary: Create a user
       description: Creates a new user account. The segment "create" is blacklisted.
       operationId: createUserKebab
@@ -29,6 +60,8 @@ paths:
 
   /users/createUser:                    #  blacklisted "create"
     post:
+      tags:
+        - users
       summary: Create user (camelCase)
       description: Creates a new user account. The compound camelCase segment "createUser" contains the blacklisted verb "create".
       operationId: createUserCamel
@@ -38,6 +71,8 @@ paths:
 
   /users/create_user:                   #  blacklisted "create"
     post:
+      tags:
+        - users
       summary: Create user (snake_case)
       description: Creates a new user account. The compound snake_case segment "create_user" contains the blacklisted verb "create".
       operationId: createUserSnake
@@ -47,6 +82,8 @@ paths:
 
   /profiles/{id}/update-profile:        # blacklisted "update"
     put:
+      tags:
+        - profiles
       summary: Update profile (kebab)
       description: Updates a user profile. The segment "update-profile" contains the blacklisted verb "update".
       operationId: updateProfileKebab
@@ -58,6 +95,8 @@ paths:
 
   /profiles/{id}/updateProfile:         # blacklisted "update"
     put:
+      tags:
+        - profiles
       summary: Update profile (camelCase)
       description: Updates a user profile. The compound camelCase segment "updateProfile" contains the blacklisted verb "update".
       operationId: updateProfileCamel
@@ -69,6 +108,8 @@ paths:
 
   /accounts/{id}/deleteAccount:         # blacklisted "delete"
     delete:
+      tags:
+        - accounts
       summary: Delete account (PascalCase)
       description: Permanently deletes an account. The compound PascalCase segment "deleteAccount" contains the blacklisted verb "delete".
       operationId: deleteAccountPascal
@@ -80,6 +121,8 @@ paths:
 
   /sessions/login_user:                 # blacklisted "login"
     post:
+      tags:
+        - sessions
       summary: User login (snake_case)
       description: Authenticates a user. The compound snake_case segment "login_user" contains the blacklisted verb "login".
       operationId: loginUserSnake
@@ -89,6 +132,8 @@ paths:
 
   /carts/{id}/checkout-cart:            # blacklisted "checkout"
     post:
+      tags:
+        - carts
       summary: Checkout cart (kebab)
       description: Completes checkout for a cart. The segment "checkout-cart" contains the blacklisted verb "checkout".
       operationId: checkoutCartKebab
@@ -100,6 +145,8 @@ paths:
 
   /backups/{id}/download-backup:         # blacklisted "download"
     get:
+      tags:
+        - backups
       summary: Download backup (kebab)
       description: Streams a backup archive. The compound kebab segment "download-backup" is verb-like and should trigger a warning.
       operationId: downloadBackupKebab
@@ -111,6 +158,8 @@ paths:
 
   /backups/{id}/downloadBackup:         # blacklisted "download"
     get:
+      tags:
+        - backups
       summary: Download backup (camelCase)
       description: Streams a backup archive. The compound camelCase segment "downloadBackup" is verb-like and should trigger a warning.
       operationId: downloadBackupCamel
@@ -122,6 +171,8 @@ paths:
 
   /backups/{id}/DownloadBackup:         # blacklisted "download"
     get:
+      tags:
+        - backups
       summary: Download backup (PascalCase)
       description: Streams a backup archive. The compound PascalCase segment "DownloadBackup" is verb-like and should trigger a warning.
       operationId: downloadBackupPascal
@@ -133,6 +184,8 @@ paths:
 
   /invoices/{id}/generate_pdf:          # Likely verb "generate"
     post:
+      tags:
+        - invoices
       summary: Generate PDF (snake_case)
       description: Generates a PDF invoice. The compound snake_case segment "generate_pdf" is verb-like and should trigger a warning.
       operationId: generatePdfSnake
@@ -144,6 +197,8 @@ paths:
 
   /jobs/{id}/start-processing:          # Likely verb "start"
     post:
+      tags:
+        - jobs
       summary: Start processing (kebab)
       description: Initiates background processing. The compound segment "start-processing" is verb-like and should trigger a warning.
       operationId: startProcessingKebab
@@ -155,6 +210,8 @@ paths:
 
   /jobs/{id}/startProcessing:           # Likely verb "start"
     post:
+      tags:
+        - jobs
       summary: Start processing (camelCase)
       description: Initiates background processing. The compound camelCase segment "startProcessing" is verb-like and should trigger a warning.
       operationId: startProcessingCamel
@@ -166,6 +223,8 @@ paths:
 
   /caches/force_sync:                   # blacklisted "sync"
     post:
+      tags:
+        - caches
       summary: Force sync (snake_case)
       description: Forces immediate cache synchronization. The compound snake_case segment "force_sync" is verb-like and should trigger a warning.
       operationId: forceSyncSnake
@@ -175,6 +234,8 @@ paths:
 
   /caches/synchronize:                   # Likely verb "synchronize"
     post:
+      tags:
+        - caches
       summary: Force sync (snake_case)
       description: Forces immediate cache synchronization. The compound snake_case segment "force_sync" is verb-like and should trigger a warning.
       operationId: forceSynchronize
@@ -184,6 +245,8 @@ paths:
 
   /reports/{id}/triggerExport:          # Likely verb "trigger"
     post:
+      tags:
+        - reports
       summary: Trigger export (camelCase)
       description: Starts asynchronous report export. The compound camelCase segment "triggerExport" is verb-like and should trigger a warning.
       operationId: triggerExportCamel
@@ -195,6 +258,8 @@ paths:
 
   /documents/{id}/renderPreview:        # Likely verb "render"
     get:
+      tags:
+        - documents
       summary: Render preview (camelCase)
       description: Generates a document preview. The compound camelCase segment "renderPreview" is verb-like and should trigger a warning.
       operationId: renderPreviewCamel
@@ -206,6 +271,8 @@ paths:
 
   /orders/{id}/calculate-total:        # Likely verb "calculate"
     get:
+      tags:
+        - orders
       summary: Calculate totals (kebab)
       description: Computes order totals. The compound kebab segment "calculate-totals" is verb-like and should trigger a warning.
       operationId: calculateTotalsKebab
@@ -217,6 +284,8 @@ paths:
 
   /tokens/refresh_cache:                # blacklisted "refresh"
     post:
+      tags:
+        - tokens
       summary: Refresh cache (snake_case)
       description: Refreshes the token cache. The compound snake_case segment "refresh_cache" is verb-like and should trigger a warning.
       operationId: refreshCacheSnake
