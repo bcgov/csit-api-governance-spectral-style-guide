@@ -1,0 +1,633 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Mock BC MSP Tombstone Data Service API",
+        "description": "Mock API simulating access to British Columbia Medical Services Plan (MSP) tombstone data (core beneficiary enrollment and coverage information).\n\n**Identification rules**:\n• Either `phn` (Personal Health Number) OR both `fullLegalName` + `birthDate` must be provided\n\nConsent is accepted based on partner attestation.",
+        "version": "0.1.0"
+    },
+    "tags": [
+        {
+            "name": "MSP Tombstone Data",
+            "description": "Endpoints for requesting MSP beneficiary tombstone data"
+        }
+    ],
+    "paths": {
+        "/msp-tombstone-data": {
+            "post": {
+                "summary": "Request MSP tombstone data",
+                "description": "Submits a request for MSP tombstone data (core enrollment and coverage information) for an individual who has provided consent.\nReturns the data if a matching beneficiary record is found.\nConsent is accepted on the basis of partner attestation.",
+                "operationId": "getMspTombstoneData",
+                "tags": [
+                    "MSP Tombstone Data"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MspTombstoneDataRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request successful - matching record found and tombstone data returned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MspTombstoneDataResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error - request body is malformed, missing required fields, or contains invalid values",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No matching MSP beneficiary found"
+                    },
+                    "500": {
+                        "description": "Internal server error - an unexpected error occurred while processing the request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "MspTombstoneDataRequest": {
+                "type": "object",
+                "description": "The payload required to request MSP tombstone data",
+                "required": [
+                    "partnerProgramId",
+                    "consent",
+                    "individual"
+                ],
+                "properties": {
+                    "partnerProgramId": {
+                        "type": "string",
+                        "description": "Unique identifier registered for the government program or department making the request",
+                        "example": "BC_INCOME_ASSISTANCE"
+                    },
+                    "consent": {
+                        "$ref": "#/components/schemas/ConsentInfo",
+                        "description": "Attestation information about the consent obtained from the individual"
+                    },
+                    "individual": {
+                        "$ref": "#/components/schemas/IndividualIdentity",
+                        "description": "Identifying information for the individual whose MSP tombstone data is being requested"
+                    }
+                },
+                "example": {
+                    "partnerProgramId": "BC_INCOME_ASSISTANCE",
+                    "consent": {
+                        "consentId": "CONSENT-2026-000123",
+                        "consentTimestamp": "2026-01-16T18:22:00Z",
+                        "consentMethod": "electronic"
+                    },
+                    "individual": {
+                        "phn": "1234567890"
+                    }
+                }
+            },
+            "IndividualIdentity": {
+                "type": "object",
+                "description": "Identification details of the individual. Either PHN or fullLegalName + birthDate must be provided.",
+                "oneOf": [
+                    {
+                        "required": [
+                            "phn"
+                        ]
+                    },
+                    {
+                        "required": [
+                            "fullLegalName",
+                            "birthDate"
+                        ]
+                    }
+                ],
+                "properties": {
+                    "phn": {
+                        "type": "string",
+                        "description": "Personal Health Number (exactly 10 digits) - preferred and highest-confidence identification method",
+                        "pattern": "^\\d{10}$",
+                        "example": "1234567890"
+                    },
+                    "fullLegalName": {
+                        "type": "string",
+                        "description": "Full legal name of the individual (required when PHN is not provided)",
+                        "example": "Jane Elizabeth Doe"
+                    },
+                    "birthDate": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Date of birth in ISO 8601 format (YYYY-MM-DD) - required when identifying without PHN",
+                        "example": "1985-04-12"
+                    }
+                },
+                "example": {
+                    "phn": "1234567890"
+                }
+            },
+            "ConsentInfo": {
+                "type": "object",
+                "description": "Information attesting to the individual's consent.",
+                "required": [
+                    "consentId",
+                    "consentTimestamp",
+                    "consentMethod"
+                ],
+                "properties": {
+                    "consentId": {
+                        "type": "string",
+                        "description": "Unique reference/ID generated by the partner for this specific consent event",
+                        "example": "CONSENT-2026-000123"
+                    },
+                    "consentTimestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "UTC timestamp when the individual provided consent",
+                        "example": "2026-01-16T18:22:00Z"
+                    },
+                    "consentMethod": {
+                        "type": "string",
+                        "description": "Method by which consent was obtained",
+                        "enum": [
+                            "electronic",
+                            "paper",
+                            "in_person"
+                        ],
+                        "example": "electronic"
+                    }
+                },
+                "example": {
+                    "consentId": "CONSENT-2026-000123",
+                    "consentTimestamp": "2026-01-16T18:22:00Z",
+                    "consentMethod": "electronic"
+                }
+            },
+            "MspTombstoneDataResponse": {
+                "type": "object",
+                "description": "Response containing the requested MSP tombstone data",
+                "required": [
+                    "status"
+                ],
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "description": "Result status of the request",
+                        "enum": [
+                            "success",
+                            "no_match",
+                            "error"
+                        ],
+                        "example": "success"
+                    },
+                    "tombstoneData": {
+                        "$ref": "#/components/schemas/MspTombstoneData",
+                        "description": "Core MSP beneficiary tombstone information (present only when status is 'success')"
+                    },
+                    "errors": {
+                        "type": "array",
+                        "description": "Problem detail error items describing why the request failed (present only when status is 'error')",
+                        "minItems": 1,
+                        "items": {
+                            "$ref": "#/components/schemas/ProblemDetailErrorItem"
+                        }
+                    }
+                },
+                "example": {
+                    "status": "success",
+                    "tombstoneData": {
+                        "phn": "1234567890",
+                        "fullLegalName": "Jane Elizabeth Doe",
+                        "birthDate": "1985-04-12",
+                        "mailingAddress": {
+                            "streetNumber": "123",
+                            "streetName": "Main",
+                            "streetType": "St",
+                            "unit": null,
+                            "city": "Victoria",
+                            "province": "BC",
+                            "postalCode": "V8V 1A1"
+                        },
+                        "residentialAddress": {
+                            "streetNumber": "123",
+                            "streetName": "Main",
+                            "streetType": "St",
+                            "unit": null,
+                            "city": "Victoria",
+                            "province": "BC",
+                            "postalCode": "V8V 1A1"
+                        },
+                        "coverageStatus": "Active",
+                        "coverageStartDate": "2010-01-01",
+                        "coverageEndDate": null
+                    }
+                }
+            },
+            "MspTombstoneData": {
+                "type": "object",
+                "description": "Core MSP beneficiary tombstone/enrollment information (basic identifying and coverage status details)",
+                "properties": {
+                    "phn": {
+                        "type": "string",
+                        "description": "Personal Health Number (10 digits)",
+                        "example": "1234567890"
+                    },
+                    "fullLegalName": {
+                        "type": "string",
+                        "description": "Full legal name as registered with MSP",
+                        "example": "Jane Elizabeth Doe"
+                    },
+                    "birthDate": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Date of birth",
+                        "example": "1985-04-12"
+                    },
+                    "mailingAddress": {
+                        "$ref": "#/components/schemas/Address",
+                        "description": "Current mailing address on file (structured format)"
+                    },
+                    "residentialAddress": {
+                        "$ref": "#/components/schemas/Address",
+                        "description": "Current residential/physical address on file (may differ from mailing)"
+                    },
+                    "coverageStatus": {
+                        "type": "string",
+                        "description": "Current MSP enrollment/coverage status",
+                        "enum": [
+                            "Active",
+                            "Inactive",
+                            "Cancelled",
+                            "Pending",
+                            "Premium Assistance"
+                        ],
+                        "example": "Active"
+                    },
+                    "coverageStartDate": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Date when current MSP coverage became effective",
+                        "example": "2010-01-01"
+                    },
+                    "coverageEndDate": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date",
+                        "description": "Date when coverage ends/ended (null if active/open-ended)",
+                        "example": null
+                    }
+                },
+                "example": {
+                    "phn": "1234567890",
+                    "fullLegalName": "Jane Elizabeth Doe",
+                    "birthDate": "1985-04-12",
+                    "mailingAddress": {
+                        "streetNumber": "123",
+                        "streetName": "Main",
+                        "streetType": "St",
+                        "unit": null,
+                        "city": "Victoria",
+                        "province": "BC",
+                        "postalCode": "V8V 1A1"
+                    },
+                    "residentialAddress": {
+                        "streetNumber": "123",
+                        "streetName": "Main",
+                        "streetType": "St",
+                        "unit": null,
+                        "city": "Victoria",
+                        "province": "BC",
+                        "postalCode": "V8V 1A1"
+                    },
+                    "coverageStatus": "Active",
+                    "coverageStartDate": "2010-01-01",
+                    "coverageEndDate": null
+                }
+            },
+            "Address": {
+                "type": "object",
+                "description": "Structured address following BC Address Data Standards and Canada Post conventions. Supports British Columbia addresses, other Canadian provinces/territories, and international addresses for terminated coverage or visitor/emergency records.",
+                "properties": {
+                    "unit": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Unit, suite, apartment, or secondary address designator (e.g., '305', 'Unit 12')",
+                        "example": "305"
+                    },
+                    "streetNumber": {
+                        "type": "string",
+                        "description": "Civic/street number or house number (required for most civic addresses)",
+                        "example": "123"
+                    },
+                    "streetName": {
+                        "type": "string",
+                        "description": "Street name or road name (without type or direction)",
+                        "example": "Main"
+                    },
+                    "streetType": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Street type abbreviation (e.g., St, Ave, Rd, Blvd, Dr)",
+                        "example": "St"
+                    },
+                    "direction": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Directional prefix or suffix (e.g., N, SW, East)",
+                        "example": "SW"
+                    },
+                    "city": {
+                        "type": "string",
+                        "description": "City, town, municipality, or community name",
+                        "example": "Victoria"
+                    },
+                    "province": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Province, territory, or state code. Use two-letter Canadian codes (e.g., 'BC', 'ON', 'AB') for Canadian addresses. Can be null or omitted for non-provincial/international addresses without state equivalents.",
+                        "example": "BC"
+                    },
+                    "country": {
+                        "type": "string",
+                        "description": "Country code (ISO 3166-1 alpha-2). Defaults to 'CA' for Canadian addresses. Required or strongly recommended for international addresses.",
+                        "example": "CA"
+                    },
+                    "postalCode": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Postal code or ZIP code. Supports Canadian format (A1A 1A1), U.S. ZIP codes, and other international formats.",
+                        "example": "V8V 1A1"
+                    }
+                },
+                "required": [
+                    "streetNumber",
+                    "streetName",
+                    "city"
+                ],
+                "examples": [
+                    {
+                        "unit": null,
+                        "streetNumber": "123",
+                        "streetName": "Main",
+                        "streetType": "St",
+                        "direction": null,
+                        "city": "Victoria",
+                        "province": "BC",
+                        "country": "CA",
+                        "postalCode": "V8V 1A1"
+                    },
+                    {
+                        "description": "Out-of-province Canadian address (e.g., terminated coverage after moving to Alberta)",
+                        "value": {
+                            "streetNumber": "456",
+                            "streetName": "Maple",
+                            "streetType": "Ave",
+                            "city": "Calgary",
+                            "province": "AB",
+                            "country": "CA",
+                            "postalCode": "T2P 1J9"
+                        }
+                    },
+                    {
+                        "description": "International address (e.g., visitor emergency or permanent move abroad)",
+                        "value": {
+                            "streetNumber": "789",
+                            "streetName": "Oak",
+                            "streetType": null,
+                            "city": "Seattle",
+                            "province": "WA",
+                            "country": "US",
+                            "postalCode": "98101"
+                        }
+                    }
+                ]
+            },
+            "ProblemDetailResponse": {
+                "type": "object",
+                "description": "Canonical model for problem details as defined by RFC-9457",
+                "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "errors"
+                ],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "description": "A URI reference that identifies the problem type",
+                        "example": "tag:validation-errors"
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "A short, human-readable summary of the problem type",
+                        "example": "Bad Request"
+                    },
+                    "status": {
+                        "type": "integer",
+                        "description": "A number indicating the HTTP status code generated for this occurrence of the problem",
+                        "example": 400
+                    },
+                    "detail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "A human-readable explanation specific to this occurrence of the problem",
+                        "example": "One or more validation errors occurred"
+                    },
+                    "errors": {
+                        "type": "array",
+                        "description": "A list of individual error occurrences found, with details and a pointer to the location of each",
+                        "minItems": 1,
+                        "items": {
+                            "$ref": "#/components/schemas/ProblemDetailErrorItem"
+                        }
+                    }
+                },
+                "example": {
+                    "type": "tag:validation-errors",
+                    "title": "Bad Request",
+                    "status": 400,
+                    "detail": "Invalid line numbers provided",
+                    "instance": "/tax-documents/query",
+                    "errors": [
+                        {
+                            "location": "body",
+                            "code": "INVALID_LINE_NUMBER",
+                            "message": "Line number does not exist in the document",
+                            "type": "tag:validation-error",
+                            "pointer": "#/lineNumbers/0",
+                            "received": "99999"
+                        }
+                    ]
+                }
+            },
+            "ProblemDetailErrorItem": {
+                "type": "object",
+                "description": "Represents a single detailed error within a Problem Details response (RFC 9457). Provides granular information about what went wrong in the request, typically used in validation, semantic, or business-rule failures.",
+                "required": [
+                    "location",
+                    "code",
+                    "message",
+                    "type"
+                ],
+                "properties": {
+                    "location": {
+                        "$ref": "#/components/schemas/ProblemDetailErrorLocation",
+                        "description": "The part of the HTTP request where the error occurred (body, query, path, header, etc.). Helps clients quickly locate the problematic input."
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "A machine-readable error code that identifies the specific type of error. Should be stable and documented for programmatic handling. Follows the 'application/problem+json' error code pattern from RFC 9457.",
+                        "example": "INVALID_LINE_NUMBER"
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "A short, human-readable summary of the error suitable for display to end-users or in logs. Should be clear and concise (RFC 9457 recommends avoiding technical jargon where possible).",
+                        "example": "Line number does not exist in the specified document"
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "A URI reference or tag that identifies the problem type (RFC 9457 'type' field). Often used to categorize errors (e.g., validation, authorization, business-rule). When using tags instead of URIs, prefix with 'tag:' is a common convention.",
+                        "example": "tag:validation-error"
+                    },
+                    "field": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The name of the specific field/property in the request that caused the error (when applicable). Useful for form-based or structured input validation.",
+                        "example": "taxYear"
+                    },
+                    "detail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "A more detailed human-readable explanation of the error, providing additional context beyond the short message (maps to RFC 9457 'detail' field). May include contextual information or suggested corrections.",
+                        "example": "Line 99999 is not present in T1 General for 2024"
+                    },
+                    "received": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The actual value received by the server that caused the error (useful for debugging and helping clients understand what was invalid).",
+                        "example": "99999"
+                    },
+                    "pointer": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "JSON Pointer (RFC 6901) to the exact location of the error within the request body (e.g., '#/lineNumbers/0'). Highly recommended for deep/nested validation errors (aligns with RFC 9457 best practices).",
+                        "example": "#/lineNumbers/1"
+                    },
+                    "constraints": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "description": "Optional object containing validation constraint violations (e.g., minLength, pattern, enum values). Keys are constraint names, values are expected values or descriptions. Useful for schema-based validation libraries.",
+                        "additionalProperties": true,
+                        "example": {
+                            "minLength": 9,
+                            "pattern": "^\\d{9}$"
+                        }
+                    }
+                },
+                "example": {
+                    "location": "body",
+                    "code": "REQUIRED_FIELD_MISSING",
+                    "message": "Missing required identifier",
+                    "type": "tag:validation-error",
+                    "pointer": "#/identifier",
+                    "detail": "One of 'phn' or both 'fullLegalName' and 'birthDate' must be provided",
+                    "received": null,
+                    "field": "individual"
+                }
+            },
+            "ProblemDetailErrorLocation": {
+                "type": "string",
+                "description": "The location on the HTTP request for which a problem has been detected. (e.g., body, query, header, path, cookie).",
+                "enum": [
+                    "body",
+                    "query",
+                    "header",
+                    "path",
+                    "cookie"
+                ],
+                "example": "body"
+            },
+            "ErrorResponse": {
+                "type": "object",
+                "description": "Standard error response format for unexpected or server-side errors (e.g., 500 Internal Server Error, 403 Forbidden, 401 Unauthorized, etc.). This is used when a more structured Problem Details response (RFC 9457) is not appropriate or when the error is general rather than validation-specific.",
+                "required": [
+                    "error",
+                    "message"
+                ],
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "description": "A short, machine-readable error code or identifier that categorizes the type of error. This field is stable and intended for programmatic handling by clients (e.g., mapping to specific error-handling logic). Common values include 'internal_error', 'forbidden', 'unauthorized', 'rate_limit_exceeded', etc.",
+                        "example": "forbidden"
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "A human-readable summary of the error, suitable for display to end-users or logging. Should be clear, concise, and avoid exposing internal technical details or sensitive information (per security best practices).",
+                        "example": "You are not authorized to access this resource"
+                    },
+                    "details": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "description": "Optional additional context or structured details about the error. This can include extra information useful for debugging (e.g., error codes from downstream systems, correlation IDs, or custom attributes). Use sparingly and avoid including sensitive data.",
+                        "additionalProperties": true,
+                        "example": {
+                            "correlationId": "req-abc123-xyz",
+                            "timestamp": "2026-01-16T19:22:00Z"
+                        }
+                    }
+                },
+                "example": {
+                    "error": "forbidden",
+                    "message": "You are not authorized to access this resource",
+                    "details": {
+                        "correlationId": "req-abc123-xyz"
+                    }
+                }
+            }
+        }
+    }
+}
