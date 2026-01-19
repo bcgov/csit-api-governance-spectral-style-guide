@@ -106,3 +106,30 @@ extends:
 | IntelliJ users                | Point plugin to the ruleset or extend from a project ruleset     |
 
 By centralizing common rules in `/spectral/basic-ruleset.yaml`, teams can enforce consistent API standards while still allowing project-specific customization.
+
+## Development
+### Running the unit tests
+
+To run all of the tests:
+
+```bash
+npm test
+```
+
+To run run all of the tests in files with a name matching the provided string:
+
+```bash
+npm test --- operationIdCamelCase
+```
+
+### Generating the Style Guide
+
+A utility python script, generate_styleguide.py, can be used to generate the style guide from a ruleset file.  Markup can be added
+to the comments in the ruleset file to add descriptions and examples for each rule.
+
+Usage: generate_styleguide.py <ruleset.yaml> [output.md]
+
+```bash
+python3 generate_styleguide.py spectral/basic-ruleset.yaml STYLE_GUIDE.md
+```
+
