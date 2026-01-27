@@ -1040,6 +1040,27 @@ paths:
 
 ---
 
+### oas3-server-not-example.com
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Server URL should not point to example.com.
+
+**Valid example:**
+```yaml
+openapi: 3.0.0
+servers:
+  - url: https://api.com
+```
+
+**Invalid example:**
+```yaml
+openapi: 3.0.0
+servers:
+  - url: https://example.com
+```
+
+---
+
 ### oas3-server-trailing-slash
 #### Severity: <span style="color:goldenrod">WARN</span>
 
@@ -1198,6 +1219,259 @@ components:
           type: integer
       example:
         id: "one"
+```
+
+---
+
+### oas3_1-callbacks-in-webhook
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Callbacks should not be defined in a webhook.
+
+**Valid example:**
+```yaml
+openapi: 3.1.0
+webhooks:
+  newPet:
+    post:
+      responses:
+        '200':
+          description: OK
+```
+
+**Invalid example:**
+```yaml
+openapi: 3.1.0
+webhooks:
+  newPet:
+    post:
+      callbacks:
+        onData:
+          '{$request.body#/callbackUrl}':
+            post:
+              responses:
+                '200':
+                  description: OK
+```
+
+---
+
+### oas3_1-servers-in-webhook
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Servers should not be defined in a webhook.
+
+**Valid example:**
+```yaml
+openapi: 3.1.0
+webhooks:
+  newPet:
+    post:
+      responses:
+        '200':
+          description: OK
+```
+
+**Invalid example:**
+```yaml
+openapi: 3.1.0
+webhooks:
+  newPet:
+    post:
+      servers:
+        - url: https://api.com
+      responses:
+        '200':
+          description: OK
+```
+
+---
+
+### operation-id-camel-case
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+operationId: camelCase
+CamelCase is the most widely adopted convention for operationId across major API providers
+and SDK generators. It maps naturally to method names in JavaScript/TypeScript, Java, C#, etc.
+Starting with a lowercase letter avoids conflicts and follows the official OpenAPI Petstore examples.
+
+**Valid example:**
+```yaml
+paths:
+  /users:
+    get:
+      operationId: listUsers
+```
+
+**Invalid example (uppercase start):**
+```yaml
+paths:
+  /users:
+    get:
+      operationId: ListUsers
+```
+
+**Invalid example (hyphen):**
+```yaml
+paths:
+  /users:
+    get:
+      operationId: list-users
+```
+
+---
+
+### path-segments-kebab-case
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Path segments: kebab-case (lowercase with hyphens)
+Industry consensus (Google, Microsoft, Zalando, etc.) strongly recommends lowercase
+hyphenated paths for readability, SEO-friendliness, and to avoid case-sensitivity issues.
+This rule ONLY checks static path segments (outside of {}).
+Path parameters ({...}) are completely ignored — any content (including empty {}, hyphens,
+uppercase, underscores, special chars) is allowed inside braces.
+Also allows:
+- root path "/"
+- optional trailing slash
+- optional query string at the end
+
+**Valid example:**
+```yaml
+paths:
+  /user-profiles/{userId}:
+    get:
+      operationId: getUserProfile
+```
+
+**Invalid example (uppercase):**
+```yaml
+paths:
+  /UserProfiles/{userId}:
+    get:
+      operationId: getUserProfile
+```
+
+**Invalid example (underscore):**
+```yaml
+paths:
+  /user_profiles/{userId}:
+    get:
+      operationId: getUserProfile
+```
+
+---
+
+### path-param-camel-case
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Path parameters: camelCase
+Path parameter names appear in generated client code and URLs. camelCase aligns with
+JSON payload properties and operationId, providing consistency across the API surface.
+
+**Valid example:**
+```yaml
+paths:
+  /users/{userId}:
+    parameters:
+      - name: userId
+        in: path
+```
+
+**Invalid example (hyphen):**
+```yaml
+paths:
+  /users/{user-id}:
+    parameters:
+      - name: user-id
+        in: path
+```
+
+**Invalid example (uppercase start):**
+```yaml
+paths:
+  /users/{UserId}:
+    parameters:
+      - name: UserId
+        in: path
+```
+
+---
+
+### query-param-camel-case
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Query parameters: camelCase
+Consistency with path parameters, operationId, and payload properties is key for developer
+experience. camelCase is the dominant choice in modern JavaScript/TypeScript ecosystems.
+
+**Valid example:**
+```yaml
+paths:
+  /users:
+    get:
+      parameters:
+        - name: pageNumber
+          in: query
+```
+
+**Invalid example (snake_case):**
+```yaml
+paths:
+  /users:
+    get:
+      parameters:
+        - name: page_number
+          in: query
+```
+
+**Invalid example (uppercase start):**
+```yaml
+paths:
+  /users:
+    get:
+      parameters:
+        - name: PageNumber
+          in: query
+```
+
+---
+
+### schema-property-camel-case
+#### Severity: OFF
+
+Schema properties (JSON payload fields): camelCase
+JSON payload field names become object properties in generated SDKs and client code.
+camelCase is the most common convention in public APIs and avoids issues with languages that
+don't support hyphens or underscores in identifiers.
+
+**Valid example:**
+```yaml
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        userId: { type: string }
+```
+
+**Invalid example (snake_case):**
+```yaml
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        user_id: { type: string }
+```
+
+**Invalid example (uppercase start):**
+```yaml
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        UserId: { type: string }
 ```
 
 ---
