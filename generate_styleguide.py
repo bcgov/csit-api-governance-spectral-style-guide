@@ -49,6 +49,9 @@ EXAMPLE_HEADER_RE = re.compile(
     re.IGNORECASE,
 )
 
+RULE_HEADER_RE = re.compile(r"^\s{2}([a-zA-Z0-9._\-$]+)\s*:\s*(\w+)?\s*$")
+SEVERITY_RE = re.compile(r"^\s{4}severity:\s*(\w+)\s*$")
+
 
 def emit_section(out: TextIO, section: SectionDoc):
     emit(out, f"## {section.name}")
@@ -95,17 +98,23 @@ def generate_styleguide(input_path: str, output: Optional[str] = None):
     collecting_section_description = False
     pending_comments: List[str] = []
 
-    for line in lines:
+    i = 0
+    total_lines = len(lines)
+
+    while i < total_lines:
+        line = lines[i]
         stripped = line.strip()
 
         # Title
         if stripped.startswith("# Title:"):
             title = stripped.replace("# Title:", "").strip()
+            i += 1
             continue
 
         # Document description
         if stripped.startswith("#") and not sections and not stripped.startswith("# Section:"):
             doc_description.append(strip_comment(line) + "  ")
+            i += 1
             continue
 
         # Section
@@ -115,34 +124,58 @@ def generate_styleguide(input_path: str, output: Optional[str] = None):
             )
             sections.append(current_section)
             collecting_section_description = True
+            i += 1
             continue
 
         # Section description
         if collecting_section_description and stripped.startswith("#"):
             current_section.description.append(strip_comment(line) + "  ")
+            i += 1
             continue
 
         if collecting_section_description and not stripped.startswith("#"):
             collecting_section_description = False
 
-        # Rules block
+        # Rules block start
         if stripped == "rules:":
             in_rules_block = True
             pending_comments = []
+            i += 1
             continue
 
         if not in_rules_block or not current_section:
+            i += 1
             continue
 
         # Rule comments
         if stripped.startswith("#"):
             pending_comments.append(strip_comment(line))
+            i += 1
             continue
 
-        # Rule definition
-        rule_match = re.match(r"^\s{2}([a-zA-Z0-9\-$]+)\s*:\s*(\w+)", line)
+        # Rule header
+        rule_match = RULE_HEADER_RE.match(line)
         if rule_match:
-            name, severity = rule_match.groups()
+            name, inline_severity = rule_match.groups()
+
+            severity = inline_severity
+
+            # Look ahead for nested severity if not inline
+            j = i + 1
+            if severity is None:
+                while j < total_lines:
+                    next_line = lines[j]
+                    if not next_line.startswith("    "):
+                        break
+                    sev_match = SEVERITY_RE.match(next_line)
+                    if sev_match:
+                        severity = sev_match.group(1)
+                        break
+                    j += 1
+
+            if severity is None:
+                severity = "off"
+
             rule = RuleDoc(name, severity)
 
             current_example: Optional[ExampleDoc] = None
@@ -162,9 +195,12 @@ def generate_styleguide(input_path: str, output: Optional[str] = None):
 
             current_section.rules.append(rule)
             pending_comments = []
+
+            i += 1
             continue
 
         pending_comments = []
+        i += 1
 
     # Emit document
     if title:

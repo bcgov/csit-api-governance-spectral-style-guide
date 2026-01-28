@@ -1159,7 +1159,7 @@ rules:
   #         UserId: { type: string }
   # ```
   schema-property-camel-case:
-      description: Schema property names in request/response bodies should be camelCase
+      description: Schema property names should be camelCase
       severity: warn
       given:
         - $.definitions..properties
