@@ -1,23 +1,33 @@
 ---
 # Fully dereferenced Spectral ruleset (all $ref resolved)
 # Original: strict-ruleset.yaml
-# Generated: 2026-02-11T19:49:17.909Z
+# Generated: 2026-02-11T21:54:58.965Z
+Title: Strict OpenAPI Style Guide
 extends: ./basic-ruleset.yaml
 rules:
-  info-description: error
   no-eval-in-markdown: error
   no-script-tags-in-markdown: error
-  openapi-tags-alphabetical: warn
+  openapi-tags-alphabetical: error
   openapi-tags-uniqueness: error
-  operation-description: error
   operation-operationId: error
   operation-success-response: error
   path-keys-no-trailing-slash: error
   array-items: error
+  oas2-api-host: error
+  oas2-api-schemes: error
+  oas2-discriminator: error
+  oas2-host-not-example: error
+  oas2-host-trailing-slash: error
+  oas2-operation-formData-consume-check: error
+  oas2-operation-security-defined: error
+  oas2-unused-definition: error
+  oas2-valid-media-example: error
+  oas2-valid-schema-example: error
   oas3-callbacks-in-callbacks: error
   oas3-server-not-example.com: error
   oas3-server-trailing-slash: error
   oas3-server-variables: error
+  oas3-unused-component: error
   oas3-valid-media-example: error
   oas3-valid-schema-example: error
   oas3_1-callbacks-in-webhook: error
@@ -28,10 +38,39 @@ rules:
   query-param-camel-case: error
   schema-property-camel-case: error
   no-empty-property-names: error
-  operation-summary: error
-  oas3-parameter-description: error
+  oas3_0-schema-requires-example: error
+  oas3_1-schema-requires-example: error
+  oas3_1-prefer-examples-over-example: error
   oas2-require-openapi-3: error
   path-segments-no-verbs-blacklist: error
+  info-description: error
+  tag-description: error
+  oas3-parameter-description: error
+  oas2-parameter-description: error
+  operation-description: error
+  schema-description: error
+  requestBody-description: error
+  header-description: error
+  securityScheme-description: error
+  operation-description-min-length: error
+  info-description-min-length: error
+  server-description-min-length: error
+  tag-description-min-length: error
+  header-description-min-length: error
+  security-scheme-description-min-length: error
+  property-description-min-length: error
+  parameter-description-min-length: error
+  response-description-min-length: error
+  schema-description-min-length: error
+  oas3_1_info-summary: error
+  path-item-summary: error
+  operation-summary: error
+  summary-no-markdown-single-line: error
+  summary-shorter-than-description: error
+  oas3_0-problem-details-response-structure: error
+  oas3_1-problem-details-response-structure: error
+  oas3_0-internal-error-response-structure: error
+  oas3_1-internal-error-response-structure: error
   openapi-tags: warn
   operation-singular-tag: warn
   operation-tag-defined: warn

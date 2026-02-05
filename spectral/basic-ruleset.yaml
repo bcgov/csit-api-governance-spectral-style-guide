@@ -1,7 +1,7 @@
 ---
 # Fully dereferenced Spectral ruleset (all $ref resolved)
 # Original: basic-ruleset.yaml
-# Generated: 2026-02-11T19:49:17.929Z
+# Generated: 2026-02-11T21:54:58.988Z
 extends: spectral:oas
 functions:
   - no-empty-property-names
@@ -12,6 +12,8 @@ functions:
   - path-segments-kebab-case
   - path-segments-no-verbs-blacklist
   - path-segments-no-verbs-probable
+  - summary-no-markdown-single-line
+  - summary-shorter-than-description
 rules:
   duplicated-entry-in-enum: error
   no-$ref-siblings: error
@@ -28,12 +30,10 @@ rules:
   oas3-examples-value-or-externalValue: error
   oas3-operation-security-defined: error
   oas3-schema: error
-  info-description: warn
   no-eval-in-markdown: warn
   no-script-tags-in-markdown: warn
   openapi-tags-alphabetical: warn
   openapi-tags-uniqueness: warn
-  operation-description: warn
   operation-operationId: warn
   operation-success-response: warn
   path-keys-no-trailing-slash: warn
@@ -57,7 +57,6 @@ rules:
   oas3-valid-schema-example: warn
   oas3_1-callbacks-in-webhook: warn
   oas3_1-servers-in-webhook: warn
-  oas3-parameter-description: warn
   operation-id-camel-case:
     description: operationId should be camelCase (starts with lowercase letter, no separators)
     message: operationId should be camelCase (starts with lowercase letter, no separators)
@@ -114,14 +113,6 @@ rules:
       - $..properties
     then:
       function: no-empty-property-names
-  operation-summary:
-    description: Every operation must have a non-empty summary
-    message: Operation is missing a summary or it is empty.
-    severity: warn
-    given: $..[get,put,post,delete,patch,options,head,trace]
-    then:
-      field: summary
-      function: truthy
   oas3_0-schema-requires-example:
     description: |
       Requires 'example' in OAS 3.0.x documents on:
@@ -209,21 +200,187 @@ rules:
     then:
       field: '@key'
       function: path-segments-no-verbs-blacklist
-  contact-properties: 'off'
-  info-contact: 'off'
-  info-license: 'off'
-  license-url: 'off'
-  openapi-tags: 'off'
-  operation-singular-tag: 'off'
-  operation-tag-defined: 'off'
-  operation-tags: 'off'
-  tag-description: 'off'
-  oas2-parameter-description: 'off'
-  oas3-api-servers: 'off'
+  info-description: warn
+  tag-description: warn
+  oas3-parameter-description: warn
+  oas2-parameter-description: warn
+  operation-description: warn
+  schema-description:
+    description: Every schema in components/schemas must have a description
+    message: Schema '{{value}}' is missing a description
+    severity: warn
+    given: $.components.schemas.*
+    then:
+      field: description
+      function: truthy
+  requestBody-description:
+    description: Every requestBody in components/requestBodies must have a description
+    message: RequestBody '{{value}}' is missing a description
+    severity: warn
+    given: $.components.requestBodies.*
+    then:
+      field: description
+      function: truthy
+  header-description:
+    description: Every header in components/headers must have a description
+    message: Header '{{value}}' is missing a description
+    severity: warn
+    given: $.components.headers.*
+    then:
+      field: description
+      function: truthy
+  securityScheme-description:
+    description: Every securityScheme in components/securitySchemes must have a description
+    message: SecurityScheme '{{value}}' is missing a description
+    severity: warn
+    given: $.components.securitySchemes.*
+    then:
+      field: description
+      function: truthy
+  operation-description-min-length:
+    description: Operation description should be meaningful (min 40 characters)
+    message: Operation description is too short (minimum 40 characters recommended)
+    severity: warn
+    given: $..[get,put,post,delete,patch,options,head,trace].description
+    then:
+      function: length
+      functionOptions:
+        min: 40
+  info-description-min-length:
+    description: API info.description should be meaningful (min 50 characters)
+    message: info.description is too short (minimum 50 characters recommended)
+    severity: warn
+    given: $.info.description
+    then:
+      function: length
+      functionOptions:
+        min: 50
+  server-description-min-length:
+    description: Server descriptions should be at least 25 characters
+    message: Server description is too short (minimum 25 characters recommended)
+    severity: warn
+    given: $.servers[*].description
+    then:
+      function: length
+      functionOptions:
+        min: 25
+  tag-description-min-length:
+    description: Tag descriptions should be at least 25 characters
+    message: Tag description is too short (minimum 25 characters recommended)
+    severity: warn
+    given: $.tags[*].description
+    then:
+      function: length
+      functionOptions:
+        min: 25
+  header-description-min-length:
+    description: Header descriptions should be at least 25 characters
+    message: Header description is too short (minimum 25 characters recommended)
+    severity: warn
+    given:
+      - $.components.headers.*.description
+    then:
+      function: length
+      functionOptions:
+        min: 25
+  security-scheme-description-min-length:
+    description: Security Scheme descriptions should be at least 25 characters
+    message: Security Scheme description is too short (minimum 25 characters recommended)
+    severity: warn
+    given:
+      - $.components.securitySchemes.*.description
+    then:
+      function: length
+      functionOptions:
+        min: 25
+  property-description-min-length:
+    description: Property descriptions should be at least 25 characters
+    message: Property description is too short (minimum 25 characters recommended)
+    severity: warn
+    given: $..properties[*].description
+    then:
+      function: length
+      functionOptions:
+        min: 25
+  parameter-description-min-length:
+    description: Parameter descriptions should be at least 25 characters
+    message: Parameter description is too short (minimum 25 characters recommended)
+    severity: warn
+    given: $..parameters[*].description
+    then:
+      function: length
+      functionOptions:
+        min: 25
+  response-description-min-length:
+    description: Response descriptions should be meaningful (min 20 characters)
+    message: Response description is too short (minimum 20 characters recommended)
+    severity: warn
+    given: $..responses[*].description
+    then:
+      function: length
+      functionOptions:
+        min: 20
+  schema-description-min-length:
+    description: Schema descriptions should be meaningful (min 30 characters)
+    message: Schema is missing description or it is too short (min 30 chars)
+    severity: warn
+    resolved: false
+    given:
+      - $.components.schemas.*.description
+    then:
+      function: length
+      functionOptions:
+        min: 30
+  oas3_1_info-summary:
+    description: Info must have a non-empty summary
+    message: Info is missing a summary or it is empty.
+    severity: warn
+    formats:
+      - oas3_1
+    given: $.info
+    then:
+      field: summary
+      function: truthy
+  path-item-summary:
+    description: Every path item must have a summary
+    message: Path '{{value}}' is missing a summary
+    severity: warn
+    given: $.paths.*
+    then:
+      field: summary
+      function: truthy
+  operation-summary:
+    description: Every operation must have a non-empty summary
+    message: Operation is missing a summary or it is empty.
+    severity: warn
+    given: $..[get,put,post,delete,patch,options,head,trace]
+    then:
+      field: summary
+      function: truthy
+  summary-no-markdown-single-line:
+    description: Summaries (info, path, operation) must be plain text and single-line (no Markdown, no newlines)
+    message: '{{error}}'
+    severity: warn
+    given:
+      - $.info.summary
+      - $..[get,put,post,delete,patch,options,head,trace].summary
+      - $.paths.*.summary
+    then:
+      function: summary-no-markdown-single-line
+  summary-shorter-than-description:
+    description: When both summary and description exist, summary must be shorter than description
+    message: '{{error}}'
+    severity: warn
+    given:
+      - $.info
+      - $.paths.*
+      - $..[get,put,post,delete,patch,options,head,trace]
+    then:
+      function: summary-shorter-than-description
   path-segments-no-verbs-probable:
     description: Path segments should preferably be nouns (NLP heuristic, excludes blacklisted verbs)
     message: '{{error}}'
-    severity: 'off'
+    severity: warn
     given: $.paths
     then:
       field: '@key'
@@ -373,7 +530,6 @@ rules:
                 pointer: '#/lineNumbers/0'
                 received: '99999'
                 type: tag:validation-error
-            instance: /tax-documents/query
             status: 400
             title: Bad Request
             type: tag:validation-errors
@@ -522,7 +678,6 @@ rules:
                   pointer: '#/lineNumbers/0'
                   received: '99999'
                   type: tag:validation-error
-              instance: /tax-documents/query
               status: 400
               title: Bad Request
               type: tag:validation-errors
@@ -618,3 +773,12 @@ rules:
               message: You are not authorized to access this resource
               details:
                 correlationId: req-abc123-xyz
+  contact-properties: 'off'
+  info-contact: 'off'
+  info-license: 'off'
+  license-url: 'off'
+  openapi-tags: 'off'
+  operation-singular-tag: 'off'
+  operation-tag-defined: 'off'
+  operation-tags: 'off'
+  oas3-api-servers: 'off'
