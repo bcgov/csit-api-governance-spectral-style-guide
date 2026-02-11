@@ -1,5 +1,3 @@
-// functions/path-segments-no-verbs-blacklist.js
-
 import { isBlacklisted } from './shared-path-helpers.js';
 
 /**

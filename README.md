@@ -5,7 +5,7 @@ adherence.
 
 A markdown formatted versions of the style guide can be found for each ruleset in the spectral directory.
 
-See [BASIC_STYLE_GUIDE.md](/spectral/BASIC_STYLE_GUIDE.md) and [STRICT_STYLE_GUIDE.md](/spectral/STRICT_STYLE_GUIDE.md)
+See [BASIC_STYLE_GUIDE.md](/dist/spectral/BASIC_STYLE_GUIDE.md) and [STRICT_STYLE_GUIDE.md](/dist/spectral/STRICT_STYLE_GUIDE.md)
 
 
 The **style guide** builds on Spectral's built-in OAS ruleset which can be found here:
@@ -13,10 +13,10 @@ The **style guide** builds on Spectral's built-in OAS ruleset which can be found
 https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules
 ```
 
-The Spectral ruleset file can be found here:
+The basic Spectral ruleset file can be found here:
 
 ```
-https://raw.githubusercontent.com/bcgov/csit-api-governance-spectral-style-guide/spectral/basic-ruleset.yaml
+https://raw.githubusercontent.com/bcgov/csit-api-governance-spectral-style-guide/dist/spectral/basic-ruleset.yaml
 ```
 
 This ruleset is intended to be reused across API projects and tooling to ensure consistent API governance and linting behavior.
@@ -35,7 +35,7 @@ You can reference the shared ruleset using Spectral’s `extends` mechanism.
 
 ```yaml
 extends:
-  - https://raw.githubusercontent.com/bcgov/csit-api-governance-spectral-style-guide/spectral/basic-ruleset.yaml
+  - https://raw.githubusercontent.com/bcgov/csit-api-governance-spectral-style-guide/dist/spectral/basic-ruleset.yaml
 ```
 
 ### Notes
@@ -59,7 +59,7 @@ The VS Code Spectral extension can be configured to use a custom ruleset file.
 
 ```json
 {
-  "spectral.rulesetFile": "https://raw.githubusercontent.com/bcgov/csit-api-governance-spectral-style-guide/spectral/basic-ruleset.yaml"
+  "spectral.rulesetFile": "https://raw.githubusercontent.com/bcgov/csit-api-governance-spectral-style-guide/dist/spectral/basic-ruleset.yaml"
 }
 ```
 
@@ -82,7 +82,7 @@ The IntelliJ Spectral plugin (for IntelliJ IDEA and other JetBrains IDEs) also s
 4. Set the **Ruleset file** to point to the shared ruleset:
 
 ```
-https://raw.githubusercontent.com/bcgov/csit-api-governance-spectral-style-guide/spectral/basic-ruleset.yaml
+https://raw.githubusercontent.com/bcgov/csit-api-governance-spectral-style-guide/dist/spectral/basic-ruleset.yaml
 ```
 
 ### Alternative: Project Ruleset
@@ -91,7 +91,7 @@ If your project already uses a local `.spectral.yaml`, configure that file in In
 
 ```yaml
 extends:
-  - https://raw.githubusercontent.com/bcgov/csit-api-governance-spectral-style-guide/spectral/basic-ruleset.yaml
+  - https://raw.githubusercontent.com/bcgov/csit-api-governance-spectral-style-guide/dist/spectral/basic-ruleset.yaml
 ```
 
 ### Notes
@@ -108,7 +108,7 @@ extends:
 | VS Code users                 | Configure `spectral.rulesetFile` or extend from `.spectral.yaml` |
 | IntelliJ users                | Point plugin to the ruleset or extend from a project ruleset     |
 
-By centralizing common rules in `/spectral/basic-ruleset.yaml`, teams can enforce consistent API standards while still allowing project-specific customization.
+By centralizing common rules in `/dist/spectral/basic-ruleset.yaml`, teams can enforce consistent API standards while still allowing project-specific customization.
 
 ## Development
 
@@ -167,5 +167,5 @@ npm test --- operationIdCamelCase
 ### Running Spectral on the CLI
 
 ```bash
-npx @stoplight/spectral-cli lint __tests__/src/resources/registry/business-spec.yaml --ruleset spectral/strict-ruleset.yaml --verbose
+npx @stoplight/spectral-cli lint __tests__/src/resources/registry/business-spec.yaml --ruleset dist/spectral/strict-ruleset.yaml --verbose
 ```

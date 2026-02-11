@@ -1,5 +1,3 @@
-// functions/path-segments-no-verbs-probable.js
-
 import posTagger from 'wink-pos-tagger';
 
 import { splitIntoWords, isBlacklisted } from './shared-path-helpers.js';

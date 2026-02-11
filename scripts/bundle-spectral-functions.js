@@ -7,7 +7,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 
 const SRC_DIR = path.resolve('__main__/src/js/spectral/functions');
-const OUT_DIR = path.resolve('spectral/functions');
+const OUT_DIR = path.resolve('dist/spectral/functions');
 
 async function bundleFunction(entryFile) {
   const inputPath = path.join(SRC_DIR, entryFile);

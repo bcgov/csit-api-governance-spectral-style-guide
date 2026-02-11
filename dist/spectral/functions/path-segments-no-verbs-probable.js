@@ -188191,8 +188191,6 @@ const isBlacklisted = (segment) => {
   return null;
 };
 
-// functions/path-segments-no-verbs-probable.js
-
 // Initialize wink-pos-tagger (lightweight, no model loading needed)
 const tagger = posTagger();
 
