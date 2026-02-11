@@ -7,7 +7,7 @@ import { splitIntoWords, isBlacklisted } from './shared-path-helpers.js';
 // Initialize wink-pos-tagger (lightweight, no model loading needed)
 const tagger = posTagger();
 
-// Verb-like suffixes (excluding 'ing' as previously requested)
+// Verb-like suffixes
 const verbLikeSuffixes = ['ate', 'ize', 'ise', 'ify', 'en'];
 
 const hasVerbLikeSuffix = (word) => {
@@ -17,6 +17,48 @@ const hasVerbLikeSuffix = (word) => {
   );
 };
 
+/**
+ * Spectral rule function: Detects **probable verbs** or action-oriented words in static path segments
+ * using a combination of lightweight NLP (POS tagging) and heuristic rules.
+ *
+ * This is a **softer / advisory** complement to `path-segments-no-verbs-blacklist`.
+ * It flags segments that are **likely** verbs or actions, even if not in the strict blacklist.
+ *
+ * Detection methods (applied per word):
+ * 1. POS tagging (via wink-pos-tagger): flags VB, VBP, VBZ as probable verbs
+ *    (VBD/VBN are skipped — often adjectives in path context)
+ * 2. Explicit disallowed words list (via rule options)
+ * 3. Verb-like suffix heuristic (e.g. activate, organize, simplify, strengthen)
+ *
+ * Features:
+ * - Skips path parameters ({id}, {userId}, etc.)
+ * - Optionally skips segments already caught by the blacklist (configurable)
+ * - Supports allow-list and disallow-list overrides via options
+ * - Reports at path level (entire path key highlighted)
+ *
+ * Recommended use: warn severity (soft guidance)
+ *
+ * @example Violations
+ *   /users/activate           → flagged ("activate" → suffix + likely VB)
+ *   /orders/submit            → flagged ("submit" → disallowed or POS)
+ *   /items/organizeByDate     → flagged ("organize" → suffix + VB)
+ *
+ * @example Valid
+ *   /users
+ *   /user-profiles
+ *   /orders/{orderId}/status
+ *   /activation-keys          → "activation" is noun, suffix not triggered
+ *
+ * @param {any} _ - Unused target value (rule runs on path key)
+ * @param {object} opts - Configuration options
+ * @param {boolean} [opts.skipBlacklisted=true] - Skip segments already blacklisted
+ * @param {string[]} [opts.allowed=[]] - Words to explicitly allow
+ * @param {string[]} [opts.disallowed=[]] - Extra words to disallow
+ * @param {boolean} [opts.debug=false] - Enable verbose console logging
+ * @param {object} context - Spectral context
+ * @param {Array} context.path - JSON path (last element = full path string)
+ * @returns {Array<{message: string, path: Array}>} Validation warnings (empty if clean)
+ */
 export default (_, opts, context) => {
   const results = [];
 

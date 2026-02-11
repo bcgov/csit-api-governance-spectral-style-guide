@@ -27,7 +27,8 @@ class SectionDoc {
 }
 
 function stripComment(line) {
-  return line.replace(/^\s*#\s?/, '').trimEnd();
+  // Remove leading whitespace + # + optional single space after #, but preserve trailing whitespace
+  return line.replace(/^\s*#\s?/, '');
 }
 
 function formatSeverity(severity) {
@@ -98,7 +99,7 @@ function generateStyleguide(inputPath, outputPath) {
     }
 
     if (stripped.startsWith('#') && sections.length === 0 && !stripped.startsWith('# Section:')) {
-      docDescription.push(stripComment(line) + '  ');
+      docDescription.push(stripComment(line));
       i++;
       continue;
     }
@@ -112,7 +113,7 @@ function generateStyleguide(inputPath, outputPath) {
     }
 
     if (collectingSectionDescription && stripped.startsWith('#')) {
-      currentSection.description.push(stripComment(line) + '  ');
+      currentSection.description.push(stripComment(line));
       i++;
       continue;
     }

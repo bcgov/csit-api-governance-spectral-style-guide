@@ -1,7 +1,7 @@
 ---
 # Fully dereferenced Spectral ruleset (all $ref resolved)
 # Original: strict-ruleset.yaml
-# Generated: 2026-02-04T21:01:21.294Z
+# Generated: 2026-02-11T19:49:17.909Z
 extends: ./basic-ruleset.yaml
 rules:
   info-description: error

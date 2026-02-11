@@ -1,7 +1,7 @@
 ---
 # Fully dereferenced Spectral ruleset (all $ref resolved)
 # Original: basic-ruleset.yaml
-# Generated: 2026-02-04T21:01:21.315Z
+# Generated: 2026-02-11T19:49:17.929Z
 extends: spectral:oas
 functions:
   - no-empty-property-names

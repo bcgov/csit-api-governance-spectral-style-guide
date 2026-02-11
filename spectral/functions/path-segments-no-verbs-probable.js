@@ -188106,8 +188106,22 @@ function requireWinkPosTagger () {
 var winkPosTaggerExports = requireWinkPosTagger();
 var posTagger = /*@__PURE__*/getDefaultExportFromCjs(winkPosTaggerExports);
 
-// src/functions/shared-path-helpers.js
-// Shared helpers for path verb rules
+/**
+ * Shared utility functions for path-related Spectral rules, particularly those
+ * enforcing RESTful naming conventions (e.g. no verbs in path segments).
+ *
+ * These helpers are used by rules such as:
+ * - path-segments-no-verbs-blacklist
+ * - (potentially) path-segments-no-verbs-probable or similar NLP-based checks
+ *
+ * Main features:
+ * - Splits path segments into individual words, handling common separators
+ *   and camelCase boundaries
+ * - Checks words against a shared blacklist of common action verbs
+ *
+ * The goal is to encourage noun-based, resource-oriented paths (e.g. /users, /orders)
+ * and discourage verb-based, RPC-style paths (e.g. /users/create, /orders/submit).
+ */
 
 const blacklistedVerbs = new Set([
   'get', 'create', 'update', 'delete', 'patch', 'put', 'post',
@@ -188117,6 +188131,26 @@ const blacklistedVerbs = new Set([
   'login', 'checkout', 'download', 'sync', 'refresh',
 ]);
 
+/**
+ * Splits a path segment into individual words for verb detection.
+ *
+ * Handles multiple conventions:
+ * - Hyphens:           user-profiles → ['user', 'profiles']
+ * - Underscores:       user_profiles → ['user', 'profiles']
+ * - CamelCase:         userProfiles   → ['user', 'Profiles']
+ * - PascalCase:        UserProfiles   → ['User', 'Profiles']
+ * - Mixed:             createUserOrder → ['create', 'User', 'Order']
+ *
+ * All resulting words are converted to lowercase and empty strings are filtered out.
+ *
+ * @param {string} segment - A single path segment (e.g. "userProfiles", "create-order")
+ * @returns {string[]} Array of lowercase words extracted from the segment
+ *
+ * @example
+ * splitIntoWords("createUserOrder") // → ['create', 'user', 'order']
+ * splitIntoWords("user-profiles")   // → ['user', 'profiles']
+ * splitIntoWords("GetUsers")        // → ['get', 'users']
+ */
 const splitIntoWords = (segment) => {
   let words = segment.split(/[-_]/);
 
@@ -188129,16 +188163,32 @@ const splitIntoWords = (segment) => {
     .filter(w => w.length > 0);
 };
 
+/**
+ * Checks whether a path segment contains any blacklisted verb words and returns
+ * the first matching blacklisted word if found.
+ *
+ * Uses `splitIntoWords` to break the segment into words, then tests each word
+ * against the predefined set of forbidden action verbs (case-insensitive).
+ *
+ * @param {string} segment - The path segment to check (e.g. "createUser", "list-orders")
+ * @returns {string | null} The first blacklisted verb found (lowercase), or `null` if none
+ *
+ * @example
+ * isBlacklisted("createUser")       // → "create"
+ * isBlacklisted("user-profiles")    // → null
+ * isBlacklisted("GetAllItems")      // → "get"
+ * isBlacklisted("activate-account") // → "activate"
+ */
 const isBlacklisted = (segment) => {
   const words = splitIntoWords(segment);
 
   for (const word of words) {
     if (blacklistedVerbs.has(word)) {
-      return true;
+      return word; // return the first matching blacklisted word
     }
   }
 
-  return false;
+  return null;
 };
 
 // functions/path-segments-no-verbs-probable.js
@@ -188156,6 +188206,48 @@ const hasVerbLikeSuffix = (word) => {
   );
 };
 
+/**
+ * Spectral rule function: Detects **probable verbs** or action-oriented words in static path segments
+ * using a combination of lightweight NLP (POS tagging) and heuristic rules.
+ *
+ * This is a **softer / advisory** complement to `path-segments-no-verbs-blacklist`.
+ * It flags segments that are **likely** verbs or actions, even if not in the strict blacklist.
+ *
+ * Detection methods (applied per word):
+ * 1. POS tagging (via wink-pos-tagger): flags VB, VBP, VBZ as probable verbs
+ *    (VBD/VBN are skipped — often adjectives in path context)
+ * 2. Explicit disallowed words list (via rule options)
+ * 3. Verb-like suffix heuristic (e.g. activate, organize, simplify, strengthen)
+ *
+ * Features:
+ * - Skips path parameters ({id}, {userId}, etc.)
+ * - Optionally skips segments already caught by the blacklist (configurable)
+ * - Supports allow-list and disallow-list overrides via options
+ * - Reports at path level (entire path key highlighted)
+ *
+ * Recommended use: warn severity (soft guidance)
+ *
+ * @example Violations
+ *   /users/activate           → flagged ("activate" → suffix + likely VB)
+ *   /orders/submit            → flagged ("submit" → disallowed or POS)
+ *   /items/organizeByDate     → flagged ("organize" → suffix + VB)
+ *
+ * @example Valid
+ *   /users
+ *   /user-profiles
+ *   /orders/{orderId}/status
+ *   /activation-keys          → "activation" is noun, suffix not triggered
+ *
+ * @param {any} _ - Unused target value (rule runs on path key)
+ * @param {object} opts - Configuration options
+ * @param {boolean} [opts.skipBlacklisted=true] - Skip segments already blacklisted
+ * @param {string[]} [opts.allowed=[]] - Words to explicitly allow
+ * @param {string[]} [opts.disallowed=[]] - Extra words to disallow
+ * @param {boolean} [opts.debug=false] - Enable verbose console logging
+ * @param {object} context - Spectral context
+ * @param {Array} context.path - JSON path (last element = full path string)
+ * @returns {Array<{message: string, path: Array}>} Validation warnings (empty if clean)
+ */
 var pathSegmentsNoVerbsProbable = (_, opts, context) => {
   const results = [];
 

@@ -1,12 +1,29 @@
-/**
- * Spectral custom function:
- * Validates that a schema conforms to an expected canonical schema,
- * allowing narrowing (minimal subset) but forbidding widening.
- * Supports recursive validation, enums, constraints, required fields, arrays, etc.
- */
-
 const validatedRefs = new Set();
 
+/**
+ * Spectral rule function: Validates that a schema is a **narrowed** (more restrictive or equal) version
+ * of an expected base schema. Used to enforce backward compatibility or schema evolution rules in OpenAPI.
+ *
+ * This function implements a **narrowing-only** validation strategy:
+ * - Allowed: making things more specific (adding enum, reducing minLength → shorter strings, etc.)
+ * - Forbidden: relaxing constraints (removing required, adding extra enum values, making nullable → non-nullable, etc.)
+ * - Allowed: adding extra optional properties (unless allowAdditionalProperties = false)
+ *
+ * Main use cases:
+ * - Ensuring request/response schemas in new API versions are compatible with previous versions
+ * - Enforcing that derived schemas (e.g. in examples, mocks, or clients) do not widen types
+ *
+ * @param {object} schema - The actual schema to validate (from the document being linted)
+ * @param {object} options - Configuration for the rule
+ * @param {object} options.expectedSchema - The base/expected schema to compare against (required)
+ * @param {string} [options.schemaName="expected schema"] - Human-readable name for error messages
+ * @param {boolean} [options.debug=false] - Enable debug logging to console
+ * @param {boolean} [options.allowAdditionalProperties=true] - Whether extra properties in actual schema are allowed
+ * @param {object} context - Spectral context object
+ * @param {object} context.document - The full resolved OpenAPI document
+ * @param {Array<string|number>} context.path - JSON path to the current schema
+ * @returns {Array<{message: string, path?: Array}>} Array of validation errors (empty if valid)
+ */
 var oas3SchemaMatchesSchema = (schema, options, context) => {
   const {
     expectedSchema,

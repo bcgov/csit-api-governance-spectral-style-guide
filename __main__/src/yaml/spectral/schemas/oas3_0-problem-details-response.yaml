@@ -180,7 +180,6 @@ components:
             pointer: "#/lineNumbers/0"
             received: "99999"
             type: tag:validation-error
-        instance: /tax-documents/query
         status: 400
         title: Bad Request
         type: tag:validation-errors

@@ -1,7 +1,42 @@
 /**
- * Spectral custom function to detect empty string property names
- * 
- * The rule must set 'resolved' to false to avoid violations being detected twice when $ref is used.
+ * Spectral rule function: Forbids empty string ("") property names in schema objects.
+ *
+ * In OpenAPI schemas, defining a property with an empty string name (e.g. `properties: { "": { type: "string" } }`)
+ * is invalid and ambiguous. It usually indicates a misunderstanding of how to model dynamic/arbitrary keys.
+ * The correct approach is to use `additionalProperties` (for truly arbitrary keys) or `patternProperties`
+ * (for keys matching a regex pattern).
+ *
+ * This rule:
+ * - Checks every key in the `properties` object (or any object treated as a schema with keys)
+ * - Reports a violation if any key is an empty string `""`
+ * - Points the error precisely at the empty key using Spectral's path mechanism for better editor highlighting
+ * - Skips non-object inputs and invalid schema structures
+ *
+ * Example violations:
+ * ```yaml
+ * properties:
+ *   "":           # ← flagged here
+ *     type: string
+ *   name:
+ *     type: string
+ * ```
+ *
+ * Correct alternatives:
+ * ```yaml
+ * # For arbitrary keys
+ * additionalProperties:
+ *   type: string
+ *
+ * # For keys matching a pattern
+ * patternProperties:
+ *   "^x-": 
+ *     type: string
+ * ```
+ *
+ * @param {object} schema - The schema object (or properties object) being evaluated
+ * @param {object} _ - Unused options object (Spectral convention)
+ * @param {object} context - Spectral context, including `path` for reporting precise locations
+ * @returns {Array<{message: string, path: Array}>} Array of validation errors (empty if valid)
  */
 var noEmptyPropertyNames = (schema, _, context) => {
   

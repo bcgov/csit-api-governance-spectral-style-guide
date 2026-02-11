@@ -1,9 +1,12 @@
 # csit-api-governance-spectral-style-guide
 
-This repository provides a **style guide** for developing REST APIs and a Spectral ruleset that can be used to provide guidance and enforce 
+This repository provides **style guides** for developing REST APIs and corresponding Spectral rulesets that can be used to provide guidance and enforce 
 adherence.
 
-A markdown formatted version of the style guide can be found in STYLE_GUIDE.md in the root of the repository.  
+A markdown formatted versions of the style guide can be found for each ruleset in the spectral directory.
+
+See [BASIC_STYLE_GUIDE.md](/spectral/BASIC_STYLE_GUIDE.md) and [STRICT_STYLE_GUIDE.md](/spectral/STRICT_STYLE_GUIDE.md)
+
 
 The **style guide** builds on Spectral's built-in OAS ruleset which can be found here:
 ```
@@ -111,21 +114,21 @@ By centralizing common rules in `/spectral/basic-ruleset.yaml`, teams can enforc
 
 ### Adding new Spectral rulesets
 
-New Spectral rulesets must be added to the __main__/src/yaml/spectral directory.
+New Spectral rulesets must be added to the `__main__/src/yaml/spectral` directory.
 
 Spectral is unable to resolve $ref properties in the rulesets in all contexts.  
 The project build will create an in-lined version of the rulesets in the spectral directory where it
 will be self contained and available for use by Spectral.
 
 ```bash
-node run build
+npm run build
 ```
 
-The script should be reun after any updates to the rulesets are made and the updated spectral directory must be committed to Git.
+The script should be rerun after any updates to the rulesets are made and the updated spectral directory must be committed to Git.
 
 ### Adding new Spectral functions
 
-New Spectral functions must be added to the __main__/src/js/spectral/functions directory.
+New Spectral functions must be added to the `__main__/src/js/spectral/functions` directory.
 Spectral functions should use ESM rather than CJS.
 
 Spectral runs the Javascript in an internal sandbox which prevents it from resolving any extenal dependencies.  
@@ -133,10 +136,10 @@ The project build will create an in-lined version of the file in the spectral/fu
 will be self contained and available for use by Spectral.
 
 ```bash
-node run build
+npm run build
 ```
 
-The script should be reun after any updates to the functions are made and the updated spectral directory must be committed to Git.
+The script should be rerun after any updates to the functions are made and the updated spectral directory must be committed to Git.
 
 ### Generating the Style Guides
 
@@ -144,7 +147,7 @@ A style guide for each ruleset file will be generated as part of the project bui
 to the comments in the ruleset file to add descriptions and examples for each rule.
 
 ```bash
-node run build
+npm run build
 ```
 
 ### Running the unit tests
