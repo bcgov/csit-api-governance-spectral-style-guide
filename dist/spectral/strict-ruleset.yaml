@@ -1,7 +1,7 @@
 ---
 # Fully dereferenced Spectral ruleset (all $ref resolved)
 # Original: strict-ruleset.yaml
-# Generated: 2026-02-11T21:54:58.965Z
+# Generated: 2026-02-13T16:48:25.581Z
 Title: Strict OpenAPI Style Guide
 extends: ./basic-ruleset.yaml
 rules:

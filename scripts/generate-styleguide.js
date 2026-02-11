@@ -245,7 +245,7 @@ console.log(`Found ${rulesetFiles.length} ruleset file(s):`);
 for (const filePath of rulesetFiles) {
   const baseName = path.basename(filePath, '-ruleset.yaml');
   const mdName = baseName.toUpperCase() + '_STYLE_GUIDE.md';
-  const outputPath = path.join(projectRoot, 'spectral', mdName);        // ← always in project root
+  const outputPath = path.join(projectRoot, 'dist', 'spectral', mdName);        // ← always in project root
 
   console.log(`  ${filePath} → ${mdName}`);
   generateStyleguide(filePath, outputPath);

@@ -83,8 +83,6 @@ const isBlacklisted = (segment) => {
   return null;
 };
 
-// functions/path-segments-no-verbs-blacklist.js
-
 /**
  * Spectral rule function: Prevents the use of blacklisted verb-like words in static path segments.
  *

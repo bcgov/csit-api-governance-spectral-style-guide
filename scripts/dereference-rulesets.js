@@ -6,7 +6,7 @@ import yaml from 'js-yaml';
 import { Resolver } from '@stoplight/json-ref-resolver';
 
 const INPUT_BASE = path.join(process.cwd(), '__main__', 'src', 'yaml', 'spectral');
-const OUTPUT_BASE = path.join(process.cwd(), 'spectral');
+const OUTPUT_BASE = path.join(process.cwd(), 'dist', 'spectral');
 
 async function dereferenceFile(inputFile) {
   const relative = path.relative(INPUT_BASE, inputFile);
