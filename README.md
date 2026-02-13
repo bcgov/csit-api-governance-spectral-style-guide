@@ -1,9 +1,12 @@
 # csit-api-governance-spectral-style-guide
 
-This repository provides a **style guide** for developing REST APIs and a Spectral ruleset that can be used to provide guidance and enforce 
+This repository provides **style guides** for developing REST APIs and corresponding Spectral rulesets that can be used to provide guidance and enforce 
 adherence.
 
-A markdown formatted version of the style guide can be found in STYLE_GUIDE.md in the root of the repository.  
+A markdown formatted versions of the style guide can be found for each ruleset in the spectral directory.
+
+See [BASIC_STYLE_GUIDE.md](/spectral/BASIC_STYLE_GUIDE.md) and [STRICT_STYLE_GUIDE.md](/spectral/STRICT_STYLE_GUIDE.md)
+
 
 The **style guide** builds on Spectral's built-in OAS ruleset which can be found here:
 ```
@@ -108,6 +111,45 @@ extends:
 By centralizing common rules in `/spectral/basic-ruleset.yaml`, teams can enforce consistent API standards while still allowing project-specific customization.
 
 ## Development
+
+### Adding new Spectral rulesets
+
+New Spectral rulesets must be added to the `__main__/src/yaml/spectral` directory.
+
+Spectral is unable to resolve $ref properties in the rulesets in all contexts.  
+The project build will create an in-lined version of the rulesets in the spectral directory where it
+will be self contained and available for use by Spectral.
+
+```bash
+npm run build
+```
+
+The script should be rerun after any updates to the rulesets are made and the updated spectral directory must be committed to Git.
+
+### Adding new Spectral functions
+
+New Spectral functions must be added to the `__main__/src/js/spectral/functions` directory.
+Spectral functions should use ESM rather than CJS.
+
+Spectral runs the Javascript in an internal sandbox which prevents it from resolving any extenal dependencies.  
+The project build will create an in-lined version of the file in the spectral/functions directory where it
+will be self contained and available for use by Spectral.
+
+```bash
+npm run build
+```
+
+The script should be rerun after any updates to the functions are made and the updated spectral directory must be committed to Git.
+
+### Generating the Style Guides
+
+A style guide for each ruleset file will be generated as part of the project build.  Markup can be added
+to the comments in the ruleset file to add descriptions and examples for each rule.
+
+```bash
+npm run build
+```
+
 ### Running the unit tests
 
 To run all of the tests:
@@ -122,14 +164,8 @@ To run run all of the tests in files with a name matching the provided string:
 npm test --- operationIdCamelCase
 ```
 
-### Generating the Style Guide
-
-A utility python script, generate_styleguide.py, can be used to generate the style guide from a ruleset file.  Markup can be added
-to the comments in the ruleset file to add descriptions and examples for each rule.
-
-Usage: generate_styleguide.py <ruleset.yaml> [output.md]
+### Running Spectral on the CLI
 
 ```bash
-python3 generate_styleguide.py spectral/basic-ruleset.yaml STYLE_GUIDE.md
+npx @stoplight/spectral-cli lint __tests__/src/resources/registry/business-spec.yaml --ruleset spectral/strict-ruleset.yaml --verbose
 ```
-

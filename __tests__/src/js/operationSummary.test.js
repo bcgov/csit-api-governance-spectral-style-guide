@@ -1,10 +1,10 @@
 const { BaseSpectralTest, Severity } = require('./helpers/base-spectral-test');
 
-class PathParamCamelCaseTest extends BaseSpectralTest {
+class OperationSummaryTest extends BaseSpectralTest {
   constructor() {
     super('spectral/basic-ruleset.yaml', `
 rules:
-  path-param-camel-case: error
+  operation-summary: error
 `);
   }
 
@@ -13,7 +13,7 @@ rules:
   }
 }
 
-const testInstance = new PathParamCamelCaseTest();
+const testInstance = new OperationSummaryTest();
 
 describe('Spectral Validation', () => {
   test('valid document should not trigger violation', async () => {
@@ -27,16 +27,11 @@ info:
 servers:
   - url: http://localhost
 paths:
-  /items/{itemId}:
+  /helloworld:
     get:
-      description: Retrieves an item by its ID
-      operationId: getItem
-      parameters:
-        - name: itemId
-          in: path
-          required: true
-          schema:
-            type: string
+      description: Hello World
+      operationId: helloWorld
+      summary: The Hello World! endpoint
       responses:
         '200':
           description: OK
@@ -57,21 +52,18 @@ info:
   title: Test API
   version: 1.0.0
   description: Test API definition
+
 host: localhost
 schemes:
   - http
+
 paths:
-  /items/{item-id}:
+  /helloworld:
     get:
-      description: Retrieves an item by its ID
-      operationId: getItem
+      description: Hello World
+      operationId: helloWorld
       produces:
         - application/json
-      parameters:
-        - name: item-id
-          in: path
-          required: true
-          type: string
       responses:
         '200':
           description: OK
@@ -79,7 +71,7 @@ paths:
             type: string
       `,
       expected: [
-        ['path-param-camel-case', Severity.Error, 'Path parameter names should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/paths/~1items~1{item-id}/get/parameters/0/name'],
+        ['operation-summary', Severity.Error, 'Operation is missing a summary or it is empty.', '/paths/~1helloworld/get'],
       ],
     });
   });
@@ -95,16 +87,10 @@ info:
 servers:
   - url: http://localhost
 paths:
-  /items/{item-id}:
+  /helloworld:
     get:
-      description: Retrieves an item by its ID
-      operationId: getItem
-      parameters:
-        - name: item-id
-          in: path
-          required: true
-          schema:
-            type: string
+      description: Hello World
+      operationId: helloWorld
       responses:
         '200':
           description: OK
@@ -114,7 +100,7 @@ paths:
                 type: string
       `,
       expected: [
-        ['path-param-camel-case', Severity.Error, 'Path parameter names should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/paths/~1items~1{item-id}/get/parameters/0/name'],
+        ['operation-summary', Severity.Error, 'Operation is missing a summary or it is empty.', '/paths/~1helloworld/get'],
       ],
     });
   });
@@ -130,16 +116,10 @@ info:
 servers:
   - url: http://localhost
 paths:
-  /items/{item-id}:
+  /helloworld:
     get:
-      description: Retrieves an item by its ID
-      operationId: getItem
-      parameters:
-        - name: item-id
-          in: path
-          required: true
-          schema:
-            type: string
+      description: Hello World
+      operationId: helloWorld
       responses:
         '200':
           description: OK
@@ -149,7 +129,7 @@ paths:
                 type: string
       `,
       expected: [
-        ['path-param-camel-case', Severity.Error, 'Path parameter names should be camelCase (start with lowercase letter, no special characters except letters and numbers)', '/paths/~1items~1{item-id}/get/parameters/0/name'],
+        ['operation-summary', Severity.Error, 'Operation is missing a summary or it is empty.', '/paths/~1helloworld/get'],
       ],
     });
   });

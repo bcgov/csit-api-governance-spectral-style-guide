@@ -1,1200 +1,620 @@
-# Title: OpenAPI Style Guide
-# This is the description for the document.
+---
+# Fully dereferenced Spectral ruleset (all $ref resolved)
+# Original: basic-ruleset.yaml
+# Generated: 2026-02-11T19:49:17.929Z
 extends: spectral:oas
-
+functions:
+  - no-empty-property-names
+  - oas3_0-schema-requires-example
+  - oas3_1-schema-has-example-but-no-examples
+  - oas3_1-schema-requires-example
+  - oas3-schema-matches-schema
+  - path-segments-kebab-case
+  - path-segments-no-verbs-blacklist
+  - path-segments-no-verbs-probable
 rules:
-  # Section: Well-formedness rules
-  # This is the description for the section.
-
-  # Each value of an enum must be different from one another.
-  # Valid example:
-  # ```yaml
-  # components:
-  #   schemas:
-  #     Status:
-  #       type: string
-  #       enum: [active, inactive, pending]
-  # ```
-  # Invalid example:
-  # ```yaml
-  # components:
-  #   schemas:
-  #     Status:
-  #       type: string
-  #       enum: [active, inactive, active]
-  # ```
   duplicated-entry-in-enum: error
-  # $ref siblings are ignored before 3.1.0
-  # Valid example:
-  # ```yaml
-  # components:
-  #   schemas:
-  #     User:
-  #       $ref: '#/components/schemas/UserRef'
-  # ```
-  # Invalid example:
-  # ```yaml
-  # components:
-  #   schemas:
-  #     User:
-  #       $ref: '#/components/schemas/UserRef'
-  #       type: object
-  # ```
   no-$ref-siblings: error
-  # Every operation must have a unique operationId.
-  # Valid example:
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       operationId: listUsers
-  #   /admins:
-  #     get:
-  #       operationId: listAdmins
-  # ```
-  # Invalid example:
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       operationId: listUsers
-  #   /admins:
-  #     get:
-  #       operationId: listUsers
-  # ```
   operation-operationId-unique: error
-  # Operation ID must avoid non-URL-safe characters
-  # Valid example:
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       operationId: listUsers_v2
-  # ```
-  # Invalid example (space):
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       operationId: list Users
-  # ```
-  # Invalid example (bracket):
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       operationId: list<Users
-  # ```
   operation-operationId-valid-in-url: error
-  # Operation parameters are unique and non-repeating
-  # 1. Operation must have unique name + in parameters.
-  # 2. Operation cannot have both in: body and in: formData parameters. (OpenAPI v2.0)
-  # 3. Operation must have only one in: body parameter. (OpenAPI v2.0)
-  # Valid example:
-  # ```yaml
-  # paths:
-  #   /users/{id}:
-  #     get:
-  #       parameters:
-  #         - name: id
-  #           in: path
-  #           required: true
-  #           schema:
-  #             type: string
-  # ```
-  # Invalid example (duplicate):
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       parameters:
-  #         - name: page
-  #           in: query
-  #         - name: page
-  #           in: query
-  # ```
-  # Invalid example (body and formData in OAS2):
-  # ```yaml
-  # swagger: '2.0'
-  # paths:
-  #   /users:
-  #     post:
-  #       parameters:
-  #         - name: payload
-  #           in: body
-  #           schema:
-  #             type: object
-  #         - name: file
-  #           in: formData
-  #           type: file
-  # ```
   operation-parameters: error
-  # Path parameter declarations cannot be empty, ex./given/{} is invalid.
-  # Valid example:
-  # ```yaml
-  # paths:
-  #   /users/{userId}:
-  #     get:
-  #       operationId: getUser
-  # ```
-  # Invalid example:
-  # ```yaml
-  # paths:
-  #   /users/{}:
-  #     get:
-  #       operationId: getUser
-  # ```
   path-declarations-must-exist: error
-  # Don't put query string items in the path, they belong in parameters.
-  # Valid example:
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       parameters:
-  #         - name: active
-  #           in: query
-  #           schema:
-  #             type: boolean
-  # ```
-  # Invalid example:
-  # ```yaml
-  # paths:
-  #   /users?active=true:
-  #     get:
-  #       operationId: listActiveUsers
-  # ```
   path-not-include-query: error
-  # Path parameters are correct and valid.
-  # 1. For every parameter referenced in the path string (i.e: /users/{userId}), the parameter must be defined in either path.parameters, 
-  #    or operation.parameters objects (non-standard HTTP operations will be silently ignored.)
-  # 2. Every path.parameters and operation.parameters parameter must be used in the path string.
-  # Valid example:
-  # ```yaml
-  # paths:
-  #   /users/{userId}:
-  #     parameters:
-  #       - name: userId
-  #         in: path
-  #         required: true
-  #         schema:
-  #           type: string
-  #     get:
-  #       operationId: getUser
-  # ```
-  # Invalid example (not defined):
-  # ```yaml
-  # paths:
-  #   /users/{userId}:
-  #     get:
-  #       operationId: getUser
-  # ```
-  # Invalid example (not used):
-  # ```yaml
-  # paths:
-  #   /users:
-  #     parameters:
-  #       - name: userId
-  #         in: path
-  #         required: true
-  #         schema:
-  #           type: string
-  #     get:
-  #       operationId: getUser
-  # ```
   path-params: error
-  # Enum values should respect the type specifier.
-  # Valid example:
-  # ```yaml
-  # components:
-  #   schemas:
-  #     Size:
-  #       type: string
-  #       enum: [small, medium, large]
-  # ```
-  # Invalid example:
-  # ```yaml
-  # components:
-  #   schemas:
-  #     Code:
-  #       type: string
-  #       enum: [200, 404, 500]
-  # ```
   typed-enum: error
-  # OpenAPI v3 keyword anyOf detected in OpenAPI v2 document.
-  # Valid example:
-  # ```yaml
-  # swagger: '2.0'
-  # info:
-  #   title: API
-  #   version: 1.0.0
-  # ```
-  # Invalid example:
-  # ```yaml
-  # swagger: '2.0'
-  # components:
-  #   schemas:
-  #     Pet:
-  #       anyOf:
-  #         - $ref: '#/components/schemas/Cat'
-  # ```
   oas2-anyOf: error
-  # OpenAPI v3 keyword oneOf detected in OpenAPI v2 document.
-  # Valid example:
-  # ```yaml
-  # swagger: '2.0'
-  # info:
-  #   title: API
-  #   version: 1.0.0
-  # ```
-  # Invalid example:
-  # ```yaml
-  # swagger: '2.0'
-  # components:
-  #   schemas:
-  #     Response:
-  #       oneOf:
-  #         - $ref: '#/components/schemas/Success'
-  # ```
   oas2-oneOf: error
-  # Validate structure of OpenAPI v2 specification.
-  # Valid example:
-  # ```yaml
-  # swagger: '2.0'
-  # info:
-  #   title: Test
-  #   version: '1.0'
-  # paths: {}
-  # ```
-  # Invalid example:
-  # ```yaml
-  # swagger: '2.0'
-  # info:
-  #   version: '1.0'
-  # paths: {}
-  # ```
   oas2-schema: error
-  # Examples for requestBody or response examples can have an externalValue or a value, but they cannot have both.
-  # Valid example:
-  # ```yaml
-  # components:
-  #   responses:
-  #     UserResponse:
-  #       content:
-  #         application/json:
-  #           example:
-  #             value:
-  #               id: 123
-  # ```
-  # Invalid example:
-  # ```yaml
-  # components:
-  #   responses:
-  #     UserResponse:
-  #       content:
-  #         application/json:
-  #           example:
-  #             value:
-  #               id: 123
-  #             externalValue: 'https://example.com/example.json'
-  # ```
   oas3-examples-value-or-externalValue: error
-  # Operation security values must match a scheme defined in the components.securitySchemes object.
-  # Valid example:
-  # ```yaml
-  # components:
-  #   securitySchemes:
-  #     bearerAuth:
-  #       type: http
-  #       scheme: bearer
-  # paths:
-  #   /admin:
-  #     get:
-  #       security:
-  #         - bearerAuth: []
-  # ```
-  # Invalid example:
-  # ```yaml
-  # components:
-  #   securitySchemes:
-  #     apiKey:
-  #       type: apiKey
-  # paths:
-  #   /admin:
-  #     get:
-  #       security:
-  #         - bearerAuth: []
-  # ```
   oas3-operation-security-defined: error
-  # Validate structure of OpenAPI v3 specification.
-  # Valid example:
-  # ```yaml
-  # openapi: 3.0.3
-  # info:
-  #   title: Test API
-  #   version: 1.0.0
-  # paths: {}
-  # ```
-  # Invalid example:
-  # ```yaml
-  # openapi: 3.0.3
-  # info:
-  #   version: 1.0.0
-  # paths: {}
-  # ```
   oas3-schema: error
-
-  # Section: Required Content
-
-  # Section: Recommended Content
-
-  # OpenAPI object info description must be present and non-empty string.
-  # Valid example:
-  # ```yaml
-  # info:
-  #   title: My API
-  #   description: A description of my API
-  #   version: 1.0.0
-  # ```
-  # Invalid example:
-  # ```yaml
-  # info:
-  #   title: My API
-  #   version: 1.0.0
-  # ```
-  # Invalid example (empty):
-  # ```yaml
-  # info:
-  #   title: My API
-  #   description: ""
-  #   version: 1.0.0
-  # ```
-  info-description: warn 
-  # No injecting eval() JavaScript statements
-  # Valid example:
-  # ```yaml
-  # info:
-  #   description: Safe text.
-  # ```
-  # Invalid example:
-  # ```yaml
-  # info:
-  #   description: "Use eval(`dangerous`)."
-  # ```
-  no-eval-in-markdown: warn 
-  # No injecting script tags
-  # Valid example:
-  # ```yaml
-  # info:
-  #   description: Regular text.
-  # ```
-  # Invalid example:
-  # ```yaml
-  # info:
-  #   description: <script>alert()</script>
-  # ```
-  no-script-tags-in-markdown: warn 
-  # OpenAPI object should have alphabetical tags. 
-  # Valid example:
-  # ```yaml
-  # tags:
-  #   - name: admins
-  #   - name: users
-  # ```
-  # Invalid example:
-  # ```yaml
-  # tags:
-  #   - name: users
-  #   - name: admins
-  # ```
+  info-description: warn
+  no-eval-in-markdown: warn
+  no-script-tags-in-markdown: warn
   openapi-tags-alphabetical: warn
-  # OpenAPI object must not have duplicated tag names (identifiers).
-  # Valid example:
-  # ```yaml
-  # tags:
-  #   - name: users
-  #   - name: admins
-  # ```
-  # Invalid example:
-  # ```yaml
-  # tags:
-  #   - name: users
-  #   - name: users
-  # ```
   openapi-tags-uniqueness: warn
-  # Operation must have a description
-  # Valid example:
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       description: List all users
-  # ```
-  # Invalid example:
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       summary: List users
-  # ```
-  # Invalid example (empty):
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       description: ""
-  # ```
-  operation-description: warn 
-  # Operation must have an operationId
-  # Valid example:
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       operationId: listUsers
-  # ```
-  # Invalid example:
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       summary: List users
-  # ```
-  operation-operationId: warn 
-  # Operation must have at least one 2xx or 3xx response.
-  # Valid example:
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       responses:
-  #         '200':
-  #           description: OK
-  # ```
-  # Invalid example:
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       responses:
-  #         '400':
-  #           description: Bad Request
-  # ```
-  operation-success-response: warn 
-  # Keep trailing slashes off of paths, as it can causes ambiguity.
-  # Valid example:
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       operationId: listUsers
-  # ```
-  # Invalid example:
-  # ```yaml
-  # paths:
-  #   /users/:
-  #     get:
-  #       operationId: listUsers
-  # ```
+  operation-description: warn
+  operation-operationId: warn
+  operation-success-response: warn
   path-keys-no-trailing-slash: warn
-  # Schemas with type: array, require a sibling items field.
-  # Valid example:
-  # ```yaml
-  # components:
-  #   schemas:
-  #     UserList:
-  #       type: array
-  #       items:
-  #         type: string
-  # ```
-  # Invalid example:
-  # ```yaml
-  # components:
-  #   schemas:
-  #     UserList:
-  #       type: array
-  # ```
   array-items: warn
-  # OpenAPI host must be present and non-empty string.
-  # Valid example:
-  # ```yaml
-  # swagger: '2.0'
-  # host: example.com
-  # ```
-  # Invalid example (missing):
-  # ```yaml
-  # swagger: '2.0'
-  # ```
-  # Invalid example (empty):
-  # ```yaml
-  # swagger: '2.0'
-  # host: ""
-  # ```
   oas2-api-host: warn
-  # OpenAPI host schemes must be present and non-empty array.
-  # Valid example:
-  # ```yaml
-  # swagger: '2.0'
-  # schemes:
-  #   - https
-  # ```
-  # Invalid example (missing):
-  # ```yaml
-  # swagger: '2.0'
-  # ```
-  # Invalid example (empty):
-  # ```yaml
-  # swagger: '2.0'
-  # schemes: []
-  # ```
   oas2-api-schemes: warn
-  # The discriminator property MUST be defined at this schema and it MUST be in the required property list.
-  # Valid example:
-  # ```yaml
-  # swagger: '2.0'
-  # definitions:
-  #   Pet:
-  #     discriminator: petType
-  #     properties:
-  #       petType:
-  #         type: string
-  #     required:
-  #       - petType
-  # ```
-  # Invalid example:
-  # ```yaml
-  # swagger: '2.0'
-  # definitions:
-  #   Pet:
-  #     discriminator: petType
-  #     properties:
-  #       petType:
-  #         type: string
-  # ```
   oas2-discriminator: warn
-  # Server URL should not point to example.com.
-  # Valid example:
-  # ```yaml
-  # swagger: '2.0'
-  # host: api.com
-  # ```
-  # Invalid example:
-  # ```yaml
-  # swagger: '2.0'
-  # host: example.com
-  # ```
   oas2-host-not-example: warn
-  # Server URL should not have a trailing slash.
-  # Valid example:
-  # ```yaml
-  # swagger: '2.0'
-  # host: api.com
-  # ```
-  # Invalid example:
-  # ```yaml
-  # swagger: '2.0'
-  # host: api.com/
-  # ```
   oas2-host-trailing-slash: warn
-  # Operations with an in: formData parameter must include application/x-www-form-urlencoded or multipart/form-data in their consumes property.
-  # Valid example:
-  # ```yaml
-  # swagger: '2.0'
-  # paths:
-  #   /upload:
-  #     post:
-  #       consumes:
-  #         - multipart/form-data
-  #       parameters:
-  #         - name: file
-  #           in: formData
-  #           type: file
-  # ```
-  # Invalid example:
-  # ```yaml
-  # swagger: '2.0'
-  # paths:
-  #   /upload:
-  #     post:
-  #       parameters:
-  #         - name: file
-  #           in: formData
-  #           type: file
-  # ```
   oas2-operation-formData-consume-check: warn
-  # Operation security values must match a scheme defined in the securityDefinitions object.
-  # Valid example:
-  # ```yaml
-  # swagger: '2.0'
-  # securityDefinitions:
-  #   bearerAuth:
-  #     type: basic
-  # paths:
-  #   /admin:
-  #     get:
-  #       security:
-  #         - bearerAuth: []
-  # ```
-  # Invalid example:
-  # ```yaml
-  # swagger: '2.0'
-  # securityDefinitions:
-  #   apiKey:
-  #     type: apiKey
-  # paths:
-  #   /admin:
-  #     get:
-  #       security:
-  #         - bearerAuth: []
-  # ```
   oas2-operation-security-defined: warn
-  # Potential unused reusable definition entry has been detected.
-  # Valid example:
-  # ```yaml
-  # swagger: '2.0'
-  # definitions:
-  #   User:
-  #     type: object
-  # paths:
-  #   /users:
-  #     get:
-  #       responses:
-  #         '200':
-  #           schema:
-  #             $ref: '#/definitions/User'
-  # ```
-  # Invalid example:
-  # ```yaml
-  # swagger: '2.0'
-  # definitions:
-  #   User:
-  #     type: object
-  # ```
   oas2-unused-definition: warn
-  # Examples must be valid against their defined schema.  This rule is applied to Media Type objects.
-  # Common reasons you may see errors are:
-  # The value used for property examples is not the same type indicated in the schema (string vs. integer, for example).
-  # Examples contain properties not included in the schema.
-  # Valid example:
-  # ```yaml
-  # swagger: '2.0'
-  # paths:
-  #   /users:
-  #     get:
-  #       produces:
-  #         - application/json
-  #       responses:
-  #         '200':
-  #           schema:
-  #             type: object
-  #             properties:
-  #               id:
-  #                 type: integer
-  #           examples:
-  #             application/json:
-  #               id: 1
-  # ```
-  # Invalid example:
-  # ```yaml
-  # swagger: '2.0'
-  # paths:
-  #   /users:
-  #     get:
-  #       produces:
-  #         - application/json
-  #       responses:
-  #         '200':
-  #           schema:
-  #             type: object
-  #             properties:
-  #               id:
-  #                 type: integer
-  #           examples:
-  #             application/json:
-  #               id: "one"
-  # ```
   oas2-valid-media-example: warn
-  # Examples must be valid against their defined schema. This rule is applied to Schema objects.
-  # Valid example:
-  # ```yaml
-  # swagger: '2.0'
-  # definitions:
-  #   User:
-  #     type: object
-  #     properties:
-  #       id:
-  #         type: integer
-  #     example:
-  #       id: 1
-  # ```
-  # Invalid example:
-  # ```yaml
-  # swagger: '2.0'
-  # definitions:
-  #   User:
-  #     type: object
-  #     properties:
-  #       id:
-  #         type: integer
-  #     example:
-  #       id: "one"
-  # ```
   oas2-valid-schema-example: warn
-  # A callback should not be defined within another callback.
-  # Valid example:
-  # ```yaml
-  # openapi: 3.0.0
-  # paths:
-  #   /webhook:
-  #     post:
-  #       callbacks:
-  #         onData:
-  #           '{$request.body#/callbackUrl}':
-  #             post:
-  #               responses:
-  #                 '200':
-  #                   description: OK
-  # ```
-  # Invalid example:
-  # ```yaml
-  # openapi: 3.0.0
-  # paths:
-  #   /webhook:
-  #     post:
-  #       callbacks:
-  #         onData:
-  #           '{$request.body#/callbackUrl}':
-  #             post:
-  #               callbacks:
-  #                 nested:
-  #                   '{$request.body#/nestedUrl}':
-  #                     post:
-  #                       responses:
-  #                         '200':
-  #                           description: OK
-  # ```
   oas3-callbacks-in-callbacks: warn
-  # Server URL should not point to example.com.
-  # Valid example:
-  # ```yaml
-  # openapi: 3.0.0
-  # servers:
-  #   - url: https://api.com
-  # ```
-  # Invalid example:
-  # ```yaml
-  # openapi: 3.0.0
-  # servers:
-  #   - url: https://example.com
-  # ```
   oas3-server-not-example.com: warn
-  # Server URL should not have a trailing slash.
-  # Valid example:
-  # ```yaml
-  # openapi: 3.0.0
-  # servers:
-  #   - url: https://api.com
-  # ```
-  # Invalid example:
-  # ```yaml
-  # openapi: 3.0.0
-  # servers:
-  #   - url: https://api.com/
-  # ```
   oas3-server-trailing-slash: warn
-  # This rule ensures that server variables defined in OpenAPI Specification 3 (OAS3) and 3.1 are valid, not unused, and result in a valid URL. 
-  # Valid example:
-  # ```yaml
-  # openapi: 3.0.0
-  # servers:
-  #   - url: https://{subdomain}.api.com
-  #     variables:
-  #       subdomain:
-  #         default: demo
-  # ```
-  # Invalid example (unused variable):
-  # ```yaml
-  # openapi: 3.0.0
-  # servers:
-  #   - url: https://api.com
-  #     variables:
-  #       subdomain:
-  #         default: demo
-  # ```
   oas3-server-variables: warn
-  # Potential unused reusable components entry has been detected.
-  # Valid example:
-  # ```yaml
-  # openapi: 3.0.0
-  # components:
-  #   schemas:
-  #     User:
-  #       type: object
-  # paths:
-  #   /users:
-  #     get:
-  #       responses:
-  #         '200':
-  #           content:
-  #             application/json:
-  #               schema:
-  #                 $ref: '#/components/schemas/User'
-  # ```
-  # Invalid example:
-  # ```yaml
-  # openapi: 3.0.0
-  # components:
-  #   schemas:
-  #     User:
-  #       type: object
-  # ```
   oas3-unused-component: warn
-  # Examples must be valid against their defined schema. This rule is applied to Media Type objects.
-  # Valid example:
-  # ```yaml
-  # openapi: 3.0.0
-  # paths:
-  #   /users:
-  #     get:
-  #       responses:
-  #         '200':
-  #           content:
-  #             application/json:
-  #               schema:
-  #                 type: object
-  #                 properties:
-  #                   id:
-  #                     type: integer
-  #               example:
-  #                 id: 1
-  # ```
-  # Invalid example:
-  # ```yaml
-  # openapi: 3.0.0
-  # paths:
-  #   /users:
-  #     get:
-  #       responses:
-  #         '200':
-  #           content:
-  #             application/json:
-  #               schema:
-  #                 type: object
-  #                 properties:
-  #                   id:
-  #                     type: integer
-  #               example:
-  #                 id: "one"
-  # ```
   oas3-valid-media-example: warn
-  # Examples must be valid against their defined schema. This rule is applied to Schema objects.
-  # Valid example:
-  # ```yaml
-  # openapi: 3.0.0
-  # components:
-  #   schemas:
-  #     User:
-  #       type: object
-  #       properties:
-  #         id:
-  #           type: integer
-  #       example:
-  #         id: 1
-  # ```
-  # Invalid example:
-  # ```yaml
-  # openapi: 3.0.0
-  # components:
-  #   schemas:
-  #     User:
-  #       type: object
-  #       properties:
-  #         id:
-  #           type: integer
-  #       example:
-  #         id: "one"
-  # ```
   oas3-valid-schema-example: warn
-  # Callbacks should not be defined in a webhook.
-  # Valid example:
-  # ```yaml
-  # openapi: 3.1.0
-  # webhooks:
-  #   newPet:
-  #     post:
-  #       responses:
-  #         '200':
-  #           description: OK
-  # ```
-  # Invalid example:
-  # ```yaml
-  # openapi: 3.1.0
-  # webhooks:
-  #   newPet:
-  #     post:
-  #       callbacks:
-  #         onData:
-  #           '{$request.body#/callbackUrl}':
-  #             post:
-  #               responses:
-  #                 '200':
-  #                   description: OK
-  # ```
   oas3_1-callbacks-in-webhook: warn
-  # Servers should not be defined in a webhook.
-  # Valid example:
-  # ```yaml
-  # openapi: 3.1.0
-  # webhooks:
-  #   newPet:
-  #     post:
-  #       responses:
-  #         '200':
-  #           description: OK
-  # ```
-  # Invalid example:
-  # ```yaml
-  # openapi: 3.1.0
-  # webhooks:
-  #   newPet:
-  #     post:
-  #       servers:
-  #         - url: https://api.com
-  #       responses:
-  #         '200':
-  #           description: OK
-  # ```
   oas3_1-servers-in-webhook: warn
-
-  # operationId: camelCase
-  # CamelCase is the most widely adopted convention for operationId across major API providers
-  # and SDK generators. It maps naturally to method names in JavaScript/TypeScript, Java, C#, etc.
-  # Starting with a lowercase letter avoids conflicts and follows the official OpenAPI Petstore examples.
-  # Valid example:
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       operationId: listUsers
-  # ```
-  # Invalid example (uppercase start):
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       operationId: ListUsers
-  # ```
-  # Invalid example (hyphen):
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       operationId: list-users
-  # ```
+  oas3-parameter-description: warn
   operation-id-camel-case:
     description: operationId should be camelCase (starts with lowercase letter, no separators)
+    message: operationId should be camelCase (starts with lowercase letter, no separators)
     severity: warn
     given: $..operationId
     then:
       function: pattern
       functionOptions:
         match: ^[a-z][a-zA-Z0-9]*$
-
-  # Path segments: kebab-case (lowercase with hyphens)
-  # Industry consensus (Google, Microsoft, Zalando, etc.) strongly recommends lowercase
-  # hyphenated paths for readability, SEO-friendliness, and to avoid case-sensitivity issues.
-  # This rule ONLY checks static path segments (outside of {}).
-  # Path parameters ({...}) are completely ignored — any content (including empty {}, hyphens,
-  # uppercase, underscores, special chars) is allowed inside braces.
-  # Also allows:
-  # - root path "/"
-  # - optional trailing slash
-  # - optional query string at the end
-  # Valid example:
-  # ```yaml
-  # paths:
-  #   /user-profiles/{userId}:
-  #     get:
-  #       operationId: getUserProfile
-  # ```
-  # Invalid example (uppercase):
-  # ```yaml
-  # paths:
-  #   /UserProfiles/{userId}:
-  #     get:
-  #       operationId: getUserProfile
-  # ```
-  # Invalid example (underscore):
-  # ```yaml
-  # paths:
-  #   /user_profiles/{userId}:
-  #     get:
-  #       operationId: getUserProfile
-  # ```
   path-segments-kebab-case:
     description: Static path segments should be kebab-case (lowercase letters, numbers, hyphens only)
     severity: warn
-    given: $.paths
+    given: $.paths.*
     then:
-      field: "@key"
-      function: pattern
-      functionOptions:
-        # Explanation:
-        # ^/                                           → starts with root slash
-        # (?:                                          → non-capturing group for alternatives
-        #   $                                          → OR: root path "/" only
-        #   |                                          → OR: path with segments
-        #   ({[^}]*}|[a-z0-9-]+)                       → first item: either {anything} or kebab segment
-        #   (/(?:{[^}]*}|[a-z0-9-]+))*                 → zero or more additional / + {anything} or kebab
-        # )
-        # /?                                           → optional trailing slash
-        # (\?.*)?                                      → optional query string
-        # $
-        match: ^/(?:$|({[^}]*}|[a-z0-9-]+)(/(?:{[^}]*}|[a-z0-9-]+))*\/?(\?.*)?)$
-
-  # Path parameters: camelCase
-  # Path parameter names appear in generated client code and URLs. camelCase aligns with
-  # JSON payload properties and operationId, providing consistency across the API surface.
-  # Valid example:
-  # ```yaml
-  # paths:
-  #   /users/{userId}:
-  #     parameters:
-  #       - name: userId
-  #         in: path
-  # ```
-  # Invalid example (hyphen):
-  # ```yaml
-  # paths:
-  #   /users/{user-id}:
-  #     parameters:
-  #       - name: user-id
-  #         in: path
-  # ```
-  # Invalid example (uppercase start):
-  # ```yaml
-  # paths:
-  #   /users/{UserId}:
-  #     parameters:
-  #       - name: UserId
-  #         in: path
-  # ```
+      function: path-segments-kebab-case
   path-param-camel-case:
     description: Path parameter names should be camelCase
+    message: Path parameter names should be camelCase (start with lowercase letter, no special characters except letters and numbers)
     severity: warn
     given: $.paths..parameters[?(@.in == 'path')].name
     then:
       function: pattern
       functionOptions:
         match: ^[a-z][a-zA-Z0-9]*$
-
-  # Query parameters: camelCase
-  # Consistency with path parameters, operationId, and payload properties is key for developer
-  # experience. camelCase is the dominant choice in modern JavaScript/TypeScript ecosystems.
-  # Valid example:
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       parameters:
-  #         - name: pageNumber
-  #           in: query
-  # ```
-  # Invalid example (snake_case):
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       parameters:
-  #         - name: page_number
-  #           in: query
-  # ```
-  # Invalid example (uppercase start):
-  # ```yaml
-  # paths:
-  #   /users:
-  #     get:
-  #       parameters:
-  #         - name: PageNumber
-  #           in: query
-  # ```
   query-param-camel-case:
     description: Query parameter names should be camelCase
+    message: Query parameter names should be camelCase (start with lowercase letter, no special characters except letters and numbers)
     severity: warn
     given: $.paths..parameters[?(@.in == 'query')].name
     then:
       function: pattern
       functionOptions:
         match: ^[a-z][a-zA-Z0-9]*$
-
-  # Schema properties (JSON payload fields): camelCase
-  # JSON payload field names become object properties in generated SDKs and client code.
-  # camelCase is the most common convention in public APIs and avoids issues with languages that
-  # don't support hyphens or underscores in identifiers.
-  # Valid example:
-  # ```yaml
-  # components:
-  #   schemas:
-  #     User:
-  #       type: object
-  #       properties:
-  #         userId: { type: string }
-  # ```
-  # Invalid example (snake_case):
-  # ```yaml
-  # components:
-  #   schemas:
-  #     User:
-  #       type: object
-  #       properties:
-  #         user_id: { type: string }
-  # ```
-  # Invalid example (uppercase start):
-  # ```yaml
-  # components:
-  #   schemas:
-  #     User:
-  #       type: object
-  #       properties:
-  #         UserId: { type: string }
-  # ```
   schema-property-camel-case:
-      description: Schema property names should be camelCase
-      severity: warn
-      given:
-        - $.definitions..properties
-        - $.components.schemas..properties
-        - $..properties   # This catches ALL properties maps, including inline schemas
-      then:
-        field: "@key"
-        function: pattern
-        functionOptions:
-          match: ^[a-z][a-zA-Z0-9]*$
-  
-
-  # Section: Optional Content
-  
-  # A contact object is required, including name, url, and email.
-  contact-properties: off
-  # Info object should contain contact object.
-  info-contact: off
-  # The info object should have a license key.
-  info-license: off 
-  # Mentioning a license is only useful if people know what the license means, so add a link to the full text for those who need it.
-  license-url: off 
-  # OpenAPI object should have non-empty tags array.
-  openapi-tags: off 
-  # Use just one tag for an operation
-  operation-singular-tag: off 
-  # Operation should have non-empty tags array.
-  operation-tag-defined: off 
-  # Operation tags should be defined in global tags.
-  operation-tags: off 
-  # A tag should have a description.
-  tag-description: off
-  # Parameter objects should have a description.
-  oas2-parameter-description: off
-  # OpenAPI servers must be present and non-empty array.
-  oas3-api-servers: off
-  # Parameter objects should have a description.
-  oas3-parameter-description: off
+    description: Schema property names should be camelCase
+    message: Schema property names should be camelCase (start with lowercase letter, no special characters except letters and numbers)
+    severity: warn
+    resolved: false
+    given:
+      - $.definitions..properties
+      - $.components.schemas..properties
+      - $..properties
+    then:
+      field: '@key'
+      function: pattern
+      functionOptions:
+        match: ^[a-z][a-zA-Z0-9]*$
+  no-empty-property-names:
+    description: Property names must not be empty strings. Empty keys are invalid in JSON and poorly supported by tools.
+    message: '{{error}}'
+    severity: warn
+    resolved: false
+    given:
+      - $..properties
+    then:
+      function: no-empty-property-names
+  operation-summary:
+    description: Every operation must have a non-empty summary
+    message: Operation is missing a summary or it is empty.
+    severity: warn
+    given: $..[get,put,post,delete,patch,options,head,trace]
+    then:
+      field: summary
+      function: truthy
+  oas3_0-schema-requires-example:
+    description: |
+      Requires 'example' in OAS 3.0.x documents on:
+      - every top-level Schema Object (reusable or inline in paths/responses/parameters/headers/request bodies)
+      Does NOT require examples on subschemas inside properties or items.
+    message: '{{error}}'
+    severity: warn
+    formats:
+      - oas3_0
+    resolved: false
+    given:
+      - $.components.schemas.*
+      - $.paths[*][*].responses[*].content.*.schema
+      - $.paths[*][*].parameters[*].schema
+      - $.components.parameters.*.schema
+      - $.paths[*][*].responses[*].headers.*.schema
+      - $.components.responses[*].headers.*.schema
+      - $.components.headers.*.schema
+      - $.paths[*][*].requestBody.content.*.schema
+      - $.components.requestBodies.*.content.*.schema
+      - $.paths[*][*].requestBody.content.*.encoding.*.headers.*.schema
+      - $.components.responses.*.content.*.schema
+    then:
+      function: oas3_0-schema-requires-example
+  oas3_1-schema-requires-example:
+    description: |
+      Requires 'example' or 'examples' in OAS 3.1.x documents on:
+      - every top-level Schema Object (reusable or inline in paths/responses/parameters/headers/request bodies)
+      Does NOT require examples on subschemas inside properties or items.
+    message: '{{error}}'
+    severity: warn
+    formats:
+      - oas3_1
+    resolved: false
+    given:
+      - $.components.schemas.*
+      - $.paths[*][*].responses[*].content.*.schema
+      - $.paths[*][*].parameters[*].schema
+      - $.components.parameters.*.schema
+      - $.paths[*][*].responses[*].headers.*.schema
+      - $.components.responses[*].headers.*.schema
+      - $.components.headers.*.schema
+      - $.paths[*][*].requestBody.content.*.schema
+      - $.components.requestBodies.*.content.*.schema
+      - $.paths[*][*].requestBody.content.*.encoding.*.headers.*.schema
+      - $.components.responses.*.content.*.schema
+    then:
+      function: oas3_1-schema-requires-example
+  oas3_1-prefer-examples-over-example:
+    description: |
+      In OAS 3.1, prefer 'examples' over the deprecated 'example'.
+      Warn only when 'example' is used **without** 'examples' (i.e. prefer 'examples' when providing examples).
+      No warning if both are present, only 'examples' is present, or neither is present.
+    message: Use 'examples' instead of (or in addition to) the deprecated 'example' in OAS 3.1 schemas
+    severity: warn
+    formats:
+      - oas3_1
+    given:
+      - $.components.schemas.*
+      - $.paths[*][*].responses[*].content.*.schema
+      - $.paths[*][*].parameters[*].schema
+      - $.components.parameters.*.schema
+      - $.paths[*][*].responses[*].headers.*.schema
+      - $.components.responses[*].headers.*.schema
+      - $.components.headers.*.schema
+      - $.paths[*][*].requestBody.content.*.schema
+      - $.components.requestBodies.*.content.*.schema
+      - $.paths[*][*].requestBody.content.*.encoding.*.headers.*.schema
+      - $.components.responses.*.content.*.schema
+    then:
+      function: oas3_1-schema-has-example-but-no-examples
+  oas2-require-openapi-3:
+    description: Document must use OpenAPI 3.x (or newer). Swagger 2.0 is not allowed.
+    message: 'Swagger 2.0 detected (uses ''swagger'' key). Use ''openapi: 3.x.x'' instead.'
+    severity: warn
+    given: $
+    then:
+      function: falsy
+      field: swagger
+  path-segments-no-verbs-blacklist:
+    description: Path segments must not contain blacklisted verbs (e.g., create, update, validate)
+    message: '{{error}}'
+    severity: warn
+    given: $.paths
+    then:
+      field: '@key'
+      function: path-segments-no-verbs-blacklist
+  contact-properties: 'off'
+  info-contact: 'off'
+  info-license: 'off'
+  license-url: 'off'
+  openapi-tags: 'off'
+  operation-singular-tag: 'off'
+  operation-tag-defined: 'off'
+  operation-tags: 'off'
+  tag-description: 'off'
+  oas2-parameter-description: 'off'
+  oas3-api-servers: 'off'
+  path-segments-no-verbs-probable:
+    description: Path segments should preferably be nouns (NLP heuristic, excludes blacklisted verbs)
+    message: '{{error}}'
+    severity: 'off'
+    given: $.paths
+    then:
+      field: '@key'
+      function: path-segments-no-verbs-probable
+      functionOptions:
+        skipBlacklisted: true
+        allowed:
+          - file
+        disallowed:
+          - import
+          - export
+  oas3_0-problem-details-response-structure:
+    description: 400 and 422 responses must match the ProblemDetails schema structure (RFC 9457 style) in OpenAPI 3.0 documents
+    message: '{{error}}'
+    severity: warn
+    formats:
+      - oas3_0
+    given:
+      - $..responses.400.content['application/json'].schema
+      - $..responses.422.content['application/json'].schema
+    then:
+      function: oas3-schema-matches-schema
+      functionOptions:
+        schemaName: ProblemDetailResponse
+        allowAdditionalProperties: true
+        debug: false
+        expectedSchema:
+          title: ProblemDetailResponse
+          description: Canonical model for problem details as defined by RFC-9457
+          type: object
+          required:
+            - type
+            - title
+            - status
+            - errors
+          properties:
+            type:
+              type: string
+              title: Type
+              description: A URI reference that identifies the problem type
+              example: tag:validation-errors
+            title:
+              type: string
+              title: Title
+              description: A short, human-readable summary of the problem type
+              example: Bad Request
+            status:
+              type: integer
+              title: Status
+              description: A number indicating the HTTP status code generated for this occurrence of the problem
+              example: 400
+            detail:
+              title: Detail
+              description: A human-readable explanation specific to this occurrence of the problem
+              type: string
+              nullable: true
+              example: One or more validation errors occurred
+            errors:
+              type: array
+              minItems: 1
+              title: Errors
+              description: A list of individual error occurrences found, with details and a pointer to the location of each
+              items:
+                title: ProblemDetailErrorItem
+                description: Represents a single detailed error within a Problem Details response (RFC 9457). Provides granular information about what went wrong in the request, typically used in validation, semantic, or business-rule failures.
+                type: object
+                required:
+                  - location
+                  - code
+                  - message
+                  - type
+                properties:
+                  location:
+                    title: ProblemDetailErrorLocation
+                    description: The location on the HTTP request for which a problem has been detected. (e.g., body, query, header, path, cookie).
+                    type: string
+                    enum:
+                      - body
+                      - query
+                      - header
+                      - path
+                      - cookie
+                    example: body
+                  code:
+                    type: string
+                    title: Code
+                    description: A machine-readable error code that identifies the specific type of error. Should be stable and documented for programmatic handling. Follows the 'application/problem+json' error code pattern from RFC 9457.
+                    example: INVALID_LINE_NUMBER
+                  message:
+                    type: string
+                    title: Message
+                    description: A short, human-readable summary of the error suitable for display to end-users or in logs. Should be clear and concise (RFC 9457 recommends avoiding technical jargon where possible).
+                    example: Line number does not exist in the specified document
+                  type:
+                    type: string
+                    title: Type
+                    description: A URI reference or tag that identifies the problem type (RFC 9457 'type' field). Often used to categorize errors (e.g., validation, authorization, business-rule). When using tags instead of URIs, prefix with 'tag:' is a common convention.
+                    example: tag:validation-error
+                  field:
+                    title: Field
+                    description: The name of the specific field/property in the request that caused the error (when applicable). Useful for form-based or structured input validation.
+                    type: string
+                    nullable: true
+                    example: taxYear
+                  detail:
+                    title: Detail
+                    description: A more detailed human-readable explanation of the error, providing additional context beyond the short message (maps to RFC 9457 'detail' field). May include contextual information or suggested corrections.
+                    type: string
+                    nullable: true
+                    example: Line 99999 is not present in T1 General for 2024
+                  received:
+                    title: Received
+                    description: The actual value received by the server that caused the error (useful for debugging and helping clients understand what was invalid).
+                    type: string
+                    nullable: true
+                    example: '99999'
+                  pointer:
+                    title: Pointer
+                    description: JSON Pointer (RFC 6901) to the exact location of the error within the request body (e.g., '#/lineNumbers/0'). Highly recommended for deep/nested validation errors (aligns with RFC 9457 best practices).
+                    type: string
+                    nullable: true
+                    example: '#/lineNumbers/1'
+                  constraints:
+                    title: Constraints
+                    description: Optional object containing validation constraint violations (e.g., minLength, pattern, enum values). Keys are constraint names, values are expected values or descriptions. Useful for schema-based validation libraries.
+                    type: object
+                    additionalProperties: true
+                    nullable: true
+                    example:
+                      minLength: 9
+                      pattern: ^\d{9}$
+                example:
+                  code: REQUIRED_FIELD_MISSING
+                  detail: One of 'sin' or both 'fullLegalName' and 'birthDate' must be provided
+                  field: individual
+                  location: body
+                  message: Missing required identifier
+                  pointer: '#/identifier'
+                  received: ''
+                  type: tag:validation-error
+          example:
+            detail: Invalid line numbers provided
+            errors:
+              - code: INVALID_LINE_NUMBER
+                location: body
+                message: Line number does not exist in the document
+                pointer: '#/lineNumbers/0'
+                received: '99999'
+                type: tag:validation-error
+            instance: /tax-documents/query
+            status: 400
+            title: Bad Request
+            type: tag:validation-errors
+  oas3_1-problem-details-response-structure:
+    description: 400 and 422 responses must match the ProblemDetails schema structure (RFC 9457 style) in OpenAPI 3.1 documents
+    message: '{{error}}'
+    severity: warn
+    formats:
+      - oas3_1
+    given:
+      - $..responses.400.content['application/json'].schema
+      - $..responses.422.content['application/json'].schema
+    then:
+      function: oas3-schema-matches-schema
+      functionOptions:
+        schemaName: ProblemDetailResponse
+        allowAdditionalProperties: true
+        debug: false
+        expectedSchema:
+          title: ProblemDetailResponse
+          description: Canonical model for problem details as defined by RFC-9457
+          type: object
+          required:
+            - type
+            - title
+            - status
+            - errors
+          properties:
+            type:
+              type: string
+              title: Type
+              description: A URI reference that identifies the problem type
+              example: tag:validation-errors
+            title:
+              type: string
+              title: Title
+              description: A short, human-readable summary of the problem type
+              example: Bad Request
+            status:
+              type: integer
+              title: Status
+              description: A number indicating the HTTP status code generated for this occurrence of the problem
+              example: 400
+            detail:
+              title: Detail
+              description: A human-readable explanation specific to this occurrence of the problem
+              anyOf:
+                - type: string
+                - type: 'null'
+              example: One or more validation errors occurred
+            errors:
+              type: array
+              minItems: 1
+              title: Errors
+              description: A list of individual error occurrences found, with details and a pointer to the location of each
+              items:
+                title: ProblemDetailErrorItem
+                description: Represents a single detailed error within a Problem Details response (RFC 9457). Provides granular information about what went wrong in the request, typically used in validation, semantic, or business-rule failures.
+                type: object
+                required:
+                  - location
+                  - code
+                  - message
+                  - type
+                properties:
+                  location:
+                    title: ProblemDetailErrorLocation
+                    description: The location on the HTTP request for which a problem has been detected. (e.g., body, query, header, path, cookie).
+                    type: string
+                    enum:
+                      - body
+                      - query
+                      - header
+                      - path
+                      - cookie
+                    examples:
+                      - body
+                  code:
+                    type: string
+                    title: Code
+                    description: A machine-readable error code that identifies the specific type of error. Should be stable and documented for programmatic handling. Follows the 'application/problem+json' error code pattern from RFC 9457.
+                    example: INVALID_LINE_NUMBER
+                  message:
+                    type: string
+                    title: Message
+                    description: A short, human-readable summary of the error suitable for display to end-users or in logs. Should be clear and concise (RFC 9457 recommends avoiding technical jargon where possible).
+                    example: Line number does not exist in the specified document
+                  type:
+                    type: string
+                    title: Type
+                    description: A URI reference or tag that identifies the problem type (RFC 9457 'type' field). Often used to categorize errors (e.g., validation, authorization, business-rule). When using tags instead of URIs, prefix with 'tag:' is a common convention.
+                    example: tag:validation-error
+                  field:
+                    title: Field
+                    description: The name of the specific field/property in the request that caused the error (when applicable). Useful for form-based or structured input validation.
+                    anyOf:
+                      - type: string
+                      - type: 'null'
+                    example: taxYear
+                  detail:
+                    title: Detail
+                    description: A more detailed human-readable explanation of the error, providing additional context beyond the short message (maps to RFC 9457 'detail' field). May include contextual information or suggested corrections.
+                    anyOf:
+                      - type: string
+                      - type: 'null'
+                    example: Line 99999 is not present in T1 General for 2024
+                  received:
+                    title: Received
+                    description: The actual value received by the server that caused the error (useful for debugging and helping clients understand what was invalid).
+                    anyOf:
+                      - type: string
+                      - type: 'null'
+                    example: '99999'
+                  pointer:
+                    title: Pointer
+                    description: JSON Pointer (RFC 6901) to the exact location of the error within the request body (e.g., '#/lineNumbers/0'). Highly recommended for deep/nested validation errors (aligns with RFC 9457 best practices).
+                    anyOf:
+                      - type: string
+                      - type: 'null'
+                    example: '#/lineNumbers/1'
+                  constraints:
+                    title: Constraints
+                    description: Optional object containing validation constraint violations (e.g., minLength, pattern, enum values). Keys are constraint names, values are expected values or descriptions. Useful for schema-based validation libraries.
+                    anyOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: 'null'
+                    example:
+                      minLength: 9
+                      pattern: ^\d{9}$
+                examples:
+                  - code: REQUIRED_FIELD_MISSING
+                    detail: One of 'sin' or both 'fullLegalName' and 'birthDate' must be provided
+                    field: individual
+                    location: body
+                    message: Missing required identifier
+                    pointer: '#/identifier'
+                    received: ''
+                    type: tag:validation-error
+          examples:
+            - detail: Invalid line numbers provided
+              errors:
+                - code: INVALID_LINE_NUMBER
+                  location: body
+                  message: Line number does not exist in the document
+                  pointer: '#/lineNumbers/0'
+                  received: '99999'
+                  type: tag:validation-error
+              instance: /tax-documents/query
+              status: 400
+              title: Bad Request
+              type: tag:validation-errors
+  oas3_0-internal-error-response-structure:
+    description: 500 responses must conform to the canonical error response schema in OpenAPI 3.0 documents
+    message: '{{error}}'
+    severity: warn
+    formats:
+      - oas3_0
+    given: $..responses.500.content['application/json'].schema
+    then:
+      function: oas3-schema-matches-schema
+      functionOptions:
+        schemaName: ErrorResponse
+        allowAdditionalProperties: true
+        debug: false
+        expectedSchema:
+          title: ErrorResponse
+          description: Standard error response format for unexpected or server-side errors (e.g., 500 Internal Server Error, 403 Forbidden, 401 Unauthorized, etc.). This is used when a more structured Problem Details response (RFC 9457) is not appropriate or when the error is general rather than validation-specific.
+          type: object
+          required:
+            - error
+            - message
+          properties:
+            error:
+              type: string
+              title: Error
+              description: A short, machine-readable error code or identifier that categorizes the type of error. This field is stable and intended for programmatic handling by clients (e.g., mapping to specific error-handling logic). Common values include 'internal_error', 'forbidden', 'unauthorized', 'rate_limit_exceeded', etc.
+              example: forbidden
+            message:
+              type: string
+              title: Message
+              description: A human-readable summary of the error, suitable for display to end-users or logging. Should be clear, concise, and avoid exposing internal technical details or sensitive information (per security best practices).
+              example: You are not authorized to access this resource
+            details:
+              title: Details
+              description: Optional additional context or structured details about the error. This can include extra information useful for debugging (e.g., error codes from downstream systems, correlation IDs, or custom attributes). Use sparingly and avoid including sensitive data.
+              type: object
+              nullable: true
+              additionalProperties: true
+              example:
+                correlationId: req-abc123-xyz
+                timestamp: '2026-01-16T19:22:00Z'
+          example:
+            error: forbidden
+            message: You are not authorized to access this resource
+            details:
+              correlationId: req-abc123-xyz
+  oas3_1-internal-error-response-structure:
+    description: 500 responses must conform to the canonical error response schema in OpenAPI 3.1 documents
+    message: '{{error}}'
+    severity: warn
+    formats:
+      - oas3_1
+    given: $..responses.500.content['application/json'].schema
+    then:
+      function: oas3-schema-matches-schema
+      functionOptions:
+        schemaName: ErrorResponse
+        allowAdditionalProperties: true
+        debug: false
+        expectedSchema:
+          title: ErrorResponse
+          description: Standard error response format for unexpected or server-side errors (e.g., 500 Internal Server Error, 403 Forbidden, 401 Unauthorized, etc.). This is used when a more structured Problem Details response (RFC 9457) is not appropriate or when the error is general rather than validation-specific.
+          type: object
+          required:
+            - error
+            - message
+          properties:
+            error:
+              type: string
+              title: Error
+              description: A short, machine-readable error code or identifier that categorizes the type of error. This field is stable and intended for programmatic handling by clients (e.g., mapping to specific error-handling logic). Common values include 'internal_error', 'forbidden', 'unauthorized', 'rate_limit_exceeded', etc.
+              examples:
+                - forbidden
+            message:
+              type: string
+              title: Message
+              description: A human-readable summary of the error, suitable for display to end-users or logging. Should be clear, concise, and avoid exposing internal technical details or sensitive information (per security best practices).
+              examples:
+                - You are not authorized to access this resource
+            details:
+              title: Details
+              description: Optional additional context or structured details about the error. This can include extra information useful for debugging (e.g., error codes from downstream systems, correlation IDs, or custom attributes). Use sparingly and avoid including sensitive data.
+              anyOf:
+                - type: object
+                  additionalProperties: true
+              examples:
+                - correlationId: req-abc123-xyz
+                  timestamp: '2026-01-16T19:22:00Z'
+          examples:
+            - error: forbidden
+              message: You are not authorized to access this resource
+              details:
+                correlationId: req-abc123-xyz

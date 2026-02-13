@@ -1,0 +1,2256 @@
+# Title: Basic OpenAPI Style Guide
+# This Spectral ruleset enforces a clean, consistent, and modern OpenAPI (OAS 2 and OAS 3) style focused on developer experience and code-generation friendliness.  
+#
+# Key conventions enforced:  
+#
+# - operationId: camelCase (starting with lowercase, alphanumeric only)
+# - Static path segments: kebab-case (lowercase letters, numbers, and hyphens only)
+# - Path and query parameter names: camelCase
+# - Schema property names (request/response bodies): camelCase
+# - No empty property names in schemas
+#
+# In addition to these custom naming rules, it includes a comprehensive set of Spectral’s built-in oas rules covering:  
+#
+# - Structural validity and well-formedness (e.g., unique operationIds, proper $ref usage, correct path parameter declarations)
+# - Prevention of common mistakes (e.g., duplicated enum values, invalid examples, misplaced query strings in paths)
+# - Recommended best practices as warnings (e.g., requiring info description, operation descriptions, success responses, avoiding trailing slashes, example.com hosts, and unused components)
+#
+# This ruleset encourages code-friendly identifiers (operationIds, parameters, payload fields) while using kebab-case for URL paths, aligning with widely adopted practices in JavaScript/TypeScript ecosystems and major API style guides.  
+extends: spectral:oas
+
+functions:
+  - no-empty-property-names
+  - oas3_0-schema-requires-example
+  - oas3_1-schema-has-example-but-no-examples
+  - oas3_1-schema-requires-example
+  - oas3-schema-matches-schema
+  - path-segments-kebab-case
+  - path-segments-no-verbs-blacklist
+  - path-segments-no-verbs-probable
+
+rules:
+
+  # Section: Required Content
+  # Enforces basic structural validity, internal consistency, and correct usage of OpenAPI features.  
+  # Catches serious issues that break parsing, validation, code generation, or spec interpretation.  
+  # All rules here are marked as **error** — these are not style preferences, but correctness requirements.  
+
+  # Each value of an enum must be different from one another.  
+  #
+  # Valid example:
+  # ```yaml
+  # components:
+  #   schemas:
+  #     Status:
+  #       type: string
+  #       enum: [active, inactive, pending]
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # components:
+  #   schemas:
+  #     Status:
+  #       type: string
+  #       enum: [active, inactive, active]
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  duplicated-entry-in-enum: error
+  # $ref siblings are ignored before 3.1.0  
+  #
+  # Valid example:
+  # ```yaml
+  # components:
+  #   schemas:
+  #     User:
+  #       $ref: '#/components/schemas/UserRef'
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # components:
+  #   schemas:
+  #     User:
+  #       $ref: '#/components/schemas/UserRef'
+  #       type: object
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  no-$ref-siblings: error
+  # Every operation must have a unique operationId.  
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       operationId: listUsers
+  #   /admins:
+  #     get:
+  #       operationId: listAdmins
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       operationId: listUsers
+  #   /admins:
+  #     get:
+  #       operationId: listUsers
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  operation-operationId-unique: error
+  # Operation ID must avoid non-URL-safe characters  
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       operationId: listUsers_v2
+  # ```
+  #
+  # Invalid example (space):
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       operationId: list Users
+  # ```
+  #
+  # Invalid example (bracket):
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       operationId: list<Users
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  operation-operationId-valid-in-url: error
+  # Operation parameters are unique and non-repeating  
+  # 1. Operation must have unique name + in parameters.
+  # 2. Operation cannot have both in: body and in: formData parameters. (OpenAPI v2.0)
+  # 3. Operation must have only one in: body parameter. (OpenAPI v2.0)
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users/{id}:
+  #     get:
+  #       parameters:
+  #         - name: id
+  #           in: path
+  #           required: true
+  #           schema:
+  #             type: string
+  # ```
+  #
+  # Invalid example (duplicate):
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       parameters:
+  #         - name: page
+  #           in: query
+  #         - name: page
+  #           in: query
+  # ```
+  #
+  # Invalid example (body and formData in OAS2):
+  # ```yaml
+  # swagger: '2.0'
+  # paths:
+  #   /users:
+  #     post:
+  #       parameters:
+  #         - name: payload
+  #           in: body
+  #           schema:
+  #             type: object
+  #         - name: file
+  #           in: formData
+  #           type: file
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  operation-parameters: error
+  # Path parameter declarations cannot be empty, ex./given/{} is invalid.  
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users/{userId}:
+  #     get:
+  #       operationId: getUser
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # paths:
+  #   /users/{}:
+  #     get:
+  #       operationId: getUser
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  path-declarations-must-exist: error
+  # Don't put query string items in the path, they belong in parameters.  
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       parameters:
+  #         - name: active
+  #           in: query
+  #           schema:
+  #             type: boolean
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # paths:
+  #   /users?active=true:
+  #     get:
+  #       operationId: listActiveUsers
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  path-not-include-query: error
+  # Path parameters are correct and valid.  
+  # 1. For every parameter referenced in the path string (i.e: /users/{userId}), the parameter must be defined in either path.parameters, 
+  #    or operation.parameters objects (non-standard HTTP operations will be silently ignored.)
+  # 2. Every path.parameters and operation.parameters parameter must be used in the path string.
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users/{userId}:
+  #     parameters:
+  #       - name: userId
+  #         in: path
+  #         required: true
+  #         schema:
+  #           type: string
+  #     get:
+  #       operationId: getUser
+  # ```
+  #
+  # Invalid example (not defined):
+  # ```yaml
+  # paths:
+  #   /users/{userId}:
+  #     get:
+  #       operationId: getUser
+  # ```
+  #
+  # Invalid example (not used):
+  # ```yaml
+  # paths:
+  #   /users:
+  #     parameters:
+  #       - name: userId
+  #         in: path
+  #         required: true
+  #         schema:
+  #           type: string
+  #     get:
+  #       operationId: getUser
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  path-params: error
+  # Enum values should respect the type specifier.  
+  #
+  # Valid example:
+  # ```yaml
+  # components:
+  #   schemas:
+  #     Size:
+  #       type: string
+  #       enum: [small, medium, large]
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # components:
+  #   schemas:
+  #     Code:
+  #       type: string
+  #       enum: [200, 404, 500]
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  typed-enum: error
+  # OpenAPI v3 keyword anyOf detected in OpenAPI v2 document.  
+  #
+  # Valid example:
+  # ```yaml
+  # swagger: '2.0'
+  # info:
+  #   title: API
+  #   version: 1.0.0
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # swagger: '2.0'
+  # components:
+  #   schemas:
+  #     Pet:
+  #       anyOf:
+  #         - $ref: '#/components/schemas/Cat'
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas2-anyOf: error
+  # OpenAPI v3 keyword oneOf detected in OpenAPI v2 document.  
+  #
+  # Valid example:
+  # ```yaml
+  # swagger: '2.0'
+  # info:
+  #   title: API
+  #   version: 1.0.0
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # swagger: '2.0'
+  # components:
+  #   schemas:
+  #     Response:
+  #       oneOf:
+  #         - $ref: '#/components/schemas/Success'
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas2-oneOf: error
+  # Validate structure of OpenAPI v2 specification.  
+  #
+  # Valid example:
+  # ```yaml
+  # swagger: '2.0'
+  # info:
+  #   title: Test
+  #   version: '1.0'
+  # paths: {}
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # swagger: '2.0'
+  # info:
+  #   version: '1.0'
+  # paths: {}
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas2-schema: error
+  # Examples for requestBody or response examples can have an externalValue or a value, but they cannot have both.  
+  #
+  # Valid example:
+  # ```yaml
+  # components:
+  #   responses:
+  #     UserResponse:
+  #       content:
+  #         application/json:
+  #           example:
+  #             value:
+  #               id: 123
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # components:
+  #   responses:
+  #     UserResponse:
+  #       content:
+  #         application/json:
+  #           example:
+  #             value:
+  #               id: 123
+  #             externalValue: 'https://example.com/example.json'
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas3-examples-value-or-externalValue: error
+  # Operation security values must match a scheme defined in the components.securitySchemes object.  
+  #
+  # Valid example:
+  # ```yaml
+  # components:
+  #   securitySchemes:
+  #     bearerAuth:
+  #       type: http
+  #       scheme: bearer
+  # paths:
+  #   /admin:
+  #     get:
+  #       security:
+  #         - bearerAuth: []
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # components:
+  #   securitySchemes:
+  #     apiKey:
+  #       type: apiKey
+  # paths:
+  #   /admin:
+  #     get:
+  #       security:
+  #         - bearerAuth: []
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas3-operation-security-defined: error
+  # Validate structure of OpenAPI v3 specification.  
+  #
+  # Valid example:
+  # ```yaml
+  # openapi: 3.0.3
+  # info:
+  #   title: Test API
+  #   version: 1.0.0
+  # paths: {}
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # openapi: 3.0.3
+  # info:
+  #   version: 1.0.0
+  # paths: {}
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas3-schema: error
+
+  # Section: Recommended Content
+
+  # OpenAPI object info description must be present and non-empty string.  
+  #
+  # Valid example:
+  # ```yaml
+  # info:
+  #   title: My API
+  #   description: A description of my API
+  #   version: 1.0.0
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # info:
+  #   title: My API
+  #   version: 1.0.0
+  # ```
+  #
+  # Invalid example (empty):
+  # ```yaml
+  # info:
+  #   title: My API
+  #   description: ""
+  #   version: 1.0.0
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  info-description: warn 
+  # No injecting eval() JavaScript statements  
+  #
+  # Valid example:
+  # ```yaml
+  # info:
+  #   description: Safe text.
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # info:
+  #   description: "Use eval(`dangerous`)."
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  no-eval-in-markdown: warn 
+  # No injecting script tags  
+  #
+  # Valid example:
+  # ```yaml
+  # info:
+  #   description: Regular text.
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # info:
+  #   description: <script>alert()</script>
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  no-script-tags-in-markdown: warn 
+  # OpenAPI object should have alphabetical tags.  
+  #
+  # Valid example:
+  # ```yaml
+  # tags:
+  #   - name: admins
+  #   - name: users
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # tags:
+  #   - name: users
+  #   - name: admins
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  openapi-tags-alphabetical: warn
+  # OpenAPI object must not have duplicated tag names (identifiers).  
+  #
+  # Valid example:
+  # ```yaml
+  # tags:
+  #   - name: users
+  #   - name: admins
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # tags:
+  #   - name: users
+  #   - name: users
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  openapi-tags-uniqueness: warn
+  # Operation must have a description  
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       description: List all users
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       summary: List users
+  # ```
+  #
+  # Invalid example (empty):
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       description: ""
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  operation-description: warn 
+  # Operation must have an operationId  
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       operationId: listUsers
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       summary: List users
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  operation-operationId: warn 
+  # Operation must have at least one 2xx or 3xx response.  
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       responses:
+  #         '200':
+  #           description: OK
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       responses:
+  #         '400':
+  #           description: Bad Request
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  operation-success-response: warn 
+  # Keep trailing slashes off of paths, as it can causes ambiguity.  
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       operationId: listUsers
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # paths:
+  #   /users/:
+  #     get:
+  #       operationId: listUsers
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  path-keys-no-trailing-slash: warn
+  # Schemas with type: array, require a sibling items field.  
+  #
+  # Valid example:
+  # ```yaml
+  # components:
+  #   schemas:
+  #     UserList:
+  #       type: array
+  #       items:
+  #         type: string
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # components:
+  #   schemas:
+  #     UserList:
+  #       type: array
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  array-items: warn
+  # OpenAPI host must be present and non-empty string.  
+  #
+  # Valid example:
+  # ```yaml
+  # swagger: '2.0'
+  # host: example.com
+  # ```
+  #
+  # Invalid example (missing):
+  # ```yaml
+  # swagger: '2.0'
+  # ```
+  #
+  # Invalid example (empty):
+  # ```yaml
+  # swagger: '2.0'
+  # host: ""
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas2-api-host: warn
+  # OpenAPI host schemes must be present and non-empty array.  
+  #
+  # Valid example:
+  # ```yaml
+  # swagger: '2.0'
+  # schemes:
+  #   - https
+  # ```
+  #
+  # Invalid example (missing):
+  # ```yaml
+  # swagger: '2.0'
+  # ```
+  #
+  # Invalid example (empty):
+  # ```yaml
+  # swagger: '2.0'
+  # schemes: []
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas2-api-schemes: warn
+  # The discriminator property MUST be defined at this schema and it MUST be in the required property list.  
+  #
+  # Valid example:
+  # ```yaml
+  # swagger: '2.0'
+  # definitions:
+  #   Pet:
+  #     discriminator: petType
+  #     properties:
+  #       petType:
+  #         type: string
+  #     required:
+  #       - petType
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # swagger: '2.0'
+  # definitions:
+  #   Pet:
+  #     discriminator: petType
+  #     properties:
+  #       petType:
+  #         type: string
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas2-discriminator: warn
+  # Server URL should not point to example.com.  
+  #
+  # Valid example:
+  # ```yaml
+  # swagger: '2.0'
+  # host: api.com
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # swagger: '2.0'
+  # host: example.com
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas2-host-not-example: warn
+  # Server URL should not have a trailing slash.  
+  #
+  # Valid example:
+  # ```yaml
+  # swagger: '2.0'
+  # host: api.com
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # swagger: '2.0'
+  # host: api.com/
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas2-host-trailing-slash: warn
+  # Operations with an in: formData parameter must include application/x-www-form-urlencoded or multipart/form-data in their consumes property.  
+  #
+  # Valid example:
+  # ```yaml
+  # swagger: '2.0'
+  # paths:
+  #   /upload:
+  #     post:
+  #       consumes:
+  #         - multipart/form-data
+  #       parameters:
+  #         - name: file
+  #           in: formData
+  #           type: file
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # swagger: '2.0'
+  # paths:
+  #   /upload:
+  #     post:
+  #       parameters:
+  #         - name: file
+  #           in: formData
+  #           type: file
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas2-operation-formData-consume-check: warn
+  # Operation security values must match a scheme defined in the securityDefinitions object.  
+  #
+  # Valid example:
+  # ```yaml
+  # swagger: '2.0'
+  # securityDefinitions:
+  #   bearerAuth:
+  #     type: basic
+  # paths:
+  #   /admin:
+  #     get:
+  #       security:
+  #         - bearerAuth: []
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # swagger: '2.0'
+  # securityDefinitions:
+  #   apiKey:
+  #     type: apiKey
+  # paths:
+  #   /admin:
+  #     get:
+  #       security:
+  #         - bearerAuth: []
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas2-operation-security-defined: warn
+  # Potential unused reusable definition entry has been detected.  
+  #
+  # Valid example:
+  # ```yaml
+  # swagger: '2.0'
+  # definitions:
+  #   User:
+  #     type: object
+  # paths:
+  #   /users:
+  #     get:
+  #       responses:
+  #         '200':
+  #           schema:
+  #             $ref: '#/definitions/User'
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # swagger: '2.0'
+  # definitions:
+  #   User:
+  #     type: object
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas2-unused-definition: warn
+  # Examples must be valid against their defined schema.  This rule is applied to Media Type objects.  
+  # Common reasons you may see errors are:  
+  # - The value used for property examples is not the same type indicated in the schema (string vs. integer, for example).
+  # - Examples contain properties not included in the schema.
+  #
+  # Valid example:
+  # ```yaml
+  # swagger: '2.0'
+  # paths:
+  #   /users:
+  #     get:
+  #       produces:
+  #         - application/json
+  #       responses:
+  #         '200':
+  #           schema:
+  #             type: object
+  #             properties:
+  #               id:
+  #                 type: integer
+  #           examples:
+  #             application/json:
+  #               id: 1
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # swagger: '2.0'
+  # paths:
+  #   /users:
+  #     get:
+  #       produces:
+  #         - application/json
+  #       responses:
+  #         '200':
+  #           schema:
+  #             type: object
+  #             properties:
+  #               id:
+  #                 type: integer
+  #           examples:
+  #             application/json:
+  #               id: "one"
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas2-valid-media-example: warn
+  # Examples must be valid against their defined schema. This rule is applied to Schema objects.  
+  #
+  # Valid example:
+  # ```yaml
+  # swagger: '2.0'
+  # definitions:
+  #   User:
+  #     type: object
+  #     properties:
+  #       id:
+  #         type: integer
+  #     example:
+  #       id: 1
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # swagger: '2.0'
+  # definitions:
+  #   User:
+  #     type: object
+  #     properties:
+  #       id:
+  #         type: integer
+  #     example:
+  #       id: "one"
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas2-valid-schema-example: warn
+  # A callback should not be defined within another callback.  
+  #
+  # Valid example:
+  # ```yaml
+  # openapi: 3.0.0
+  # paths:
+  #   /webhook:
+  #     post:
+  #       callbacks:
+  #         onData:
+  #           '{$request.body#/callbackUrl}':
+  #             post:
+  #               responses:
+  #                 '200':
+  #                   description: OK
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # openapi: 3.0.0
+  # paths:
+  #   /webhook:
+  #     post:
+  #       callbacks:
+  #         onData:
+  #           '{$request.body#/callbackUrl}':
+  #             post:
+  #               callbacks:
+  #                 nested:
+  #                   '{$request.body#/nestedUrl}':
+  #                     post:
+  #                       responses:
+  #                         '200':
+  #                           description: OK
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas3-callbacks-in-callbacks: warn
+  # Server URL should not point to example.com.  
+  #
+  # Valid example:
+  # ```yaml
+  # openapi: 3.0.0
+  # servers:
+  #   - url: https://api.com
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # openapi: 3.0.0
+  # servers:
+  #   - url: https://example.com
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas3-server-not-example.com: warn
+  # Server URL should not have a trailing slash.  
+  #
+  # Valid example:
+  # ```yaml
+  # openapi: 3.0.0
+  # servers:
+  #   - url: https://api.com
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # openapi: 3.0.0
+  # servers:
+  #   - url: https://api.com/
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas3-server-trailing-slash: warn
+  # This rule ensures that server variables defined in OpenAPI Specification 3 (OAS3) and 3.1 are valid, not unused, and result in a valid URL. 
+  #
+  # Valid example:
+  # ```yaml
+  # openapi: 3.0.0
+  # servers:
+  #   - url: https://{subdomain}.api.com
+  #     variables:
+  #       subdomain:
+  #         default: demo
+  # ```
+  #
+  # Invalid example (unused variable):
+  # ```yaml
+  # openapi: 3.0.0
+  # servers:
+  #   - url: https://api.com
+  #     variables:
+  #       subdomain:
+  #         default: demo
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas3-server-variables: warn
+  # Potential unused reusable components entry has been detected.  
+  #
+  # Valid example:
+  # ```yaml
+  # openapi: 3.0.0
+  # components:
+  #   schemas:
+  #     User:
+  #       type: object
+  # paths:
+  #   /users:
+  #     get:
+  #       responses:
+  #         '200':
+  #           content:
+  #             application/json:
+  #               schema:
+  #                 $ref: '#/components/schemas/User'
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # openapi: 3.0.0
+  # components:
+  #   schemas:
+  #     User:
+  #       type: object
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas3-unused-component: warn
+  # Examples must be valid against their defined schema. This rule is applied to Media Type objects.  
+  #
+  # Valid example:
+  # ```yaml
+  # openapi: 3.0.0
+  # paths:
+  #   /users:
+  #     get:
+  #       responses:
+  #         '200':
+  #           content:
+  #             application/json:
+  #               schema:
+  #                 type: object
+  #                 properties:
+  #                   id:
+  #                     type: integer
+  #               example:
+  #                 id: 1
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # openapi: 3.0.0
+  # paths:
+  #   /users:
+  #     get:
+  #       responses:
+  #         '200':
+  #           content:
+  #             application/json:
+  #               schema:
+  #                 type: object
+  #                 properties:
+  #                   id:
+  #                     type: integer
+  #               example:
+  #                 id: "one"
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas3-valid-media-example: warn
+  # Examples must be valid against their defined schema. This rule is applied to Schema objects.  
+  #
+  # Valid example:
+  # ```yaml
+  # openapi: 3.0.0
+  # components:
+  #   schemas:
+  #     User:
+  #       type: object
+  #       properties:
+  #         id:
+  #           type: integer
+  #       example:
+  #         id: 1
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # openapi: 3.0.0
+  # components:
+  #   schemas:
+  #     User:
+  #       type: object
+  #       properties:
+  #         id:
+  #           type: integer
+  #       example:
+  #         id: "one"
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.  
+  oas3-valid-schema-example: warn
+  # Callbacks should not be defined in a webhook.
+  #
+  # Valid example:
+  # ```yaml
+  # openapi: 3.1.0
+  # webhooks:
+  #   newPet:
+  #     post:
+  #       responses:
+  #         '200':
+  #           description: OK
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # openapi: 3.1.0
+  # webhooks:
+  #   newPet:
+  #     post:
+  #       callbacks:
+  #         onData:
+  #           '{$request.body#/callbackUrl}':
+  #             post:
+  #               responses:
+  #                 '200':
+  #                   description: OK
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas3_1-callbacks-in-webhook: warn
+  # Servers should not be defined in a webhook.  
+  #
+  # Valid example:
+  # ```yaml
+  # openapi: 3.1.0
+  # webhooks:
+  #   newPet:
+  #     post:
+  #       responses:
+  #         '200':
+  #           description: OK
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # openapi: 3.1.0
+  # webhooks:
+  #   newPet:
+  #     post:
+  #       servers:
+  #         - url: https://api.com
+  #       responses:
+  #         '200':
+  #           description: OK
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas3_1-servers-in-webhook: warn
+  # Parameter objects should have a description.  
+  #
+  # Valid example:
+  # ```yaml
+  # parameters:
+  #   - name: userId
+  #     in: path
+  #     required: true
+  #     description: The unique identifier of the user
+  #     schema:
+  #       type: string
+  #       format: uuid
+  # ```
+  #
+  # Invalid example (missing description):
+  # ```yaml
+  # parameters:
+  #   - name: userId
+  #     in: path
+  #     required: true
+  #     # Missing description
+  #     schema:
+  #       type: string
+  #       format: uuid
+  # ```
+  #
+  # Invalid example (empty description):
+  # ```yaml
+  # parameters:
+  #   - name: userId
+  #     in: path
+  #     required: true
+  #     description: ""
+  #     schema:
+  #       type: string
+  # ```  
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas3-parameter-description: warn
+
+  # Operation Ids must use camelCase.  
+  # CamelCase is the most widely adopted convention for operationId across major API providers and SDK generators. It maps naturally to method names in JavaScript/TypeScript, Java, C#, etc.  
+  # Starting with a lowercase letter avoids conflicts and follows the official OpenAPI Petstore examples.
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       operationId: listUsers
+  # ```
+  #
+  # Invalid example (uppercase start):
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       operationId: ListUsers
+  # ```
+  #
+  # Invalid example (hyphen):
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       operationId: list-users
+  # ```
+  operation-id-camel-case:
+    description: operationId should be camelCase (starts with lowercase letter, no separators)
+    message: "operationId should be camelCase (starts with lowercase letter, no separators)"
+    severity: warn
+    given: $..operationId
+    then:
+      function: pattern
+      functionOptions:
+        match: ^[a-z][a-zA-Z0-9]*$
+
+  # Path segments mustuse kebab-case (lowercase with hyphens).  
+  # Industry consensus (Google, Microsoft, Zalando, etc.) strongly recommends lowercase
+  # hyphenated paths for readability, SEO-friendliness, and to avoid case-sensitivity issues.  
+  # This rule ONLY checks static path segments (outside of {}).  
+  # Path parameters ({...}) are completely ignored — any content (including empty {}, hyphens,
+  # uppercase, underscores, special chars) is allowed inside braces.  
+  #
+  # Also allows:
+  # - root path "/"
+  # - optional trailing slash
+  # - optional query string at the end
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /user-profiles/{userId}:
+  #     get:
+  #       operationId: getUserProfile
+  # ```
+  #
+  # Invalid example (uppercase):
+  # ```yaml
+  # paths:
+  #   /UserProfiles/{userId}:
+  #     get:
+  #       operationId: getUserProfile
+  # ```
+  #
+  # Invalid example (underscore):
+  # ```yaml
+  # paths:
+  #   /user_profiles/{userId}:
+  #     get:
+  #       operationId: getUserProfile
+  # ```
+  path-segments-kebab-case:
+    description: Static path segments should be kebab-case (lowercase letters, numbers, hyphens only)
+    severity: warn
+    given: $.paths.*
+    then:
+      function: path-segments-kebab-case
+
+  # Path parameters must use camelCase.  
+  # Path parameter names appear in generated client code and URLs. camelCase aligns with JSON payload properties and operationId, providing consistency across the API surface.  
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users/{userId}:
+  #     parameters:
+  #       - name: userId
+  #         in: path
+  # ```
+  #
+  # Invalid example (hyphen):
+  # ```yaml
+  # paths:
+  #   /users/{user-id}:
+  #     parameters:
+  #       - name: user-id
+  #         in: path
+  # ```
+  #
+  # Invalid example (uppercase start):
+  # ```yaml
+  # paths:
+  #   /users/{UserId}:
+  #     parameters:
+  #       - name: UserId
+  #         in: path
+  # ```
+  path-param-camel-case:
+    description: Path parameter names should be camelCase
+    message: "Path parameter names should be camelCase (start with lowercase letter, no special characters except letters and numbers)"
+    severity: warn
+    given: $.paths..parameters[?(@.in == 'path')].name
+    then:
+      function: pattern
+      functionOptions:
+        match: ^[a-z][a-zA-Z0-9]*$
+
+  # Query parameters must use camelCase.  
+  # Consistency with path parameters, operationId, and payload properties is key for developer
+  # experience. camelCase is the dominant choice in modern JavaScript/TypeScript ecosystems.  
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       parameters:
+  #         - name: pageNumber
+  #           in: query
+  # ```
+  #
+  # Invalid example (snake_case):
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       parameters:
+  #         - name: page_number
+  #           in: query
+  # ```
+  #
+  # Invalid example (uppercase start):
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       parameters:
+  #         - name: PageNumber
+  #           in: query
+  # ```
+  query-param-camel-case:
+    description: Query parameter names should be camelCase
+    message: "Query parameter names should be camelCase (start with lowercase letter, no special characters except letters and numbers)"
+    severity: warn
+    given: $.paths..parameters[?(@.in == 'query')].name
+    then:
+      function: pattern
+      functionOptions:
+        match: ^[a-z][a-zA-Z0-9]*$
+
+  # Schema properties (JSON payload fields) must use camelCase.  
+  # JSON payload field names become object properties in generated SDKs and client code.  
+  # camelCase is the most common convention in public APIs and avoids issues with languages that
+  # don't support hyphens or underscores in identifiers.  
+  #
+  # Valid example:
+  # ```yaml
+  # components:
+  #   schemas:
+  #     User:
+  #       type: object
+  #       properties:
+  #         userId: { type: string }
+  # ```
+  #
+  # Invalid example (snake_case):
+  # ```yaml
+  # components:
+  #   schemas:
+  #     User:
+  #       type: object
+  #       properties:
+  #         user_id: { type: string }
+  # ```
+  #
+  # Invalid example (uppercase start):
+  # ```yaml
+  # components:
+  #   schemas:
+  #     User:
+  #       type: object
+  #       properties:
+  #         UserId: { type: string }
+  # ```
+  schema-property-camel-case:
+    description: Schema property names should be camelCase
+    message: "Schema property names should be camelCase (start with lowercase letter, no special characters except letters and numbers)"
+    severity: warn
+    resolved: false   # Key: Run on the unresolved (raw) document to see $ref keywords
+    given:
+      - $.definitions..properties
+      - $.components.schemas..properties
+      - $..properties   # This catches ALL properties maps, including inline schemas
+    then:
+      field: "@key"
+      function: pattern
+      functionOptions:
+        match: ^[a-z][a-zA-Z0-9]*$
+  
+  # No empty strings cannotbe used for Schema property names.  
+  # OpenAPI schemas should not use an empty string ("") as a property name.  
+  # Empty property keys are invalid in actual JSON payloads (most parsers reject { "": "value" }),
+  # break code generators, and are poorly supported by documentation tools.  
+  # This pattern sometimes appears as a workaround to model "a single arbitrary key with a string value",
+  # but the correct approach is to use `additionalProperties` with constraints (e.g., minProperties/maxProperties: 1).  
+  #
+  # Valid example (using additionalProperties):
+  # ```yaml
+  # Diff:
+  #   type: object
+  #   additionalProperties:
+  #     type: string
+  #     description: Description of the changes in correction filing.
+  #   minProperties: 1
+  #   maxProperties: 1
+  # ```
+  #
+  # Invalid example (empty string key):
+  # ```yaml
+  # Diff:
+  #   anyOf:
+  #     - properties:
+  #         '':                     # <-- disallowed
+  #           type: string
+  #           description: Description of the changes in correction filing.
+  # ```
+  no-empty-property-names:
+    description: Property names must not be empty strings. Empty keys are invalid in JSON and poorly supported by tools.
+    message: "{{error}}"  # This tells Spectral to use the message from the custom function
+    severity: warn
+    resolved: false   # Key: Run on the unresolved (raw) document to see $ref keywords
+    given:
+    - $..properties  # catches almost everything (schemas, headers, inline, etc.)
+    then:
+      function: no-empty-property-names
+
+  # Every operation must have a summary (short one-line overview)  
+  # Summary is ideal for list views and quick scanning in tools like Swagger UI.  
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       summary: List all users
+  #       description: Returns a paginated list of users.
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       # Missing summary
+  #       description: Returns a paginated list of users.
+  # ```
+  #
+  # Invalid example (empty):
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       summary: ""
+  #       description: Returns a paginated list of users.
+  # ```
+  operation-summary:
+    description: Every operation must have a non-empty summary
+    message: "Operation is missing a summary or it is empty."
+    severity: warn
+    given: $..[get,put,post,delete,patch,options,head,trace]
+    then:
+      field: summary
+      function: truthy
+
+  # Every top-level schema object in OpenAPI 3.0.x documents should include a non-empty
+  # 'example' to improve API documentation clarity, enable better code generation, and help
+  # API consumers quickly understand the expected data shape and realistic values.  
+  #
+  # This rule applies ONLY to top-level schemas (not to nested properties/items/allOf/anyOf/oneOf subschemas).  
+  #
+  # Valid example:
+  # ```yaml
+  # components:
+  #   schemas:
+  #     User:
+  #       type: object
+  #       properties:
+  #         id:
+  #           type: integer
+  #         name:
+  #           type: string
+  #       example:          # ← required here
+  #         id: 123
+  #         name: "Alice Smith"
+  # ```
+  #
+  # Also valid (inline in response):
+  # ```yaml
+  # paths:
+  #   /users/{id}:
+  #     get:
+  #       responses:
+  #         '200':
+  #           content:
+  #             application/json:
+  #               schema:
+  #                 type: object
+  #                 properties:
+  #                   data:
+  #                     type: string
+  #               example:          # ← required here
+  #                 data: "success"
+  # ```
+  #
+  # Invalid examples:
+  # ```yaml
+  # components:
+  #   schemas:
+  #     Product:
+  #       type: object
+  #       properties:
+  #         sku:
+  #           type: string
+  #         price:
+  #           type: number
+  #       # missing example
+  # ```
+  #
+  # ```yaml
+  # paths:
+  #   /items:
+  #     post:
+  #       requestBody:
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: array
+  #               items:
+  #                 type: object
+  #             # missing example on the top-level array schema
+  # ```
+  oas3_0-schema-requires-example:
+    description: |
+      Requires 'example' in OAS 3.0.x documents on:
+      - every top-level Schema Object (reusable or inline in paths/responses/parameters/headers/request bodies)
+      Does NOT require examples on subschemas inside properties or items.
+    message: "{{error}}"
+    severity: warn
+    formats: [oas3_0]
+    resolved: false
+    given:
+      - $.components.schemas.*
+      - $.paths[*][*].responses[*].content.*.schema
+      - $.paths[*][*].parameters[*].schema
+      - $.components.parameters.*.schema
+      - $.paths[*][*].responses[*].headers.*.schema
+      - $.components.responses[*].headers.*.schema
+      - $.components.headers.*.schema
+      - $.paths[*][*].requestBody.content.*.schema
+      - $.components.requestBodies.*.content.*.schema
+      - $.paths[*][*].requestBody.content.*.encoding.*.headers.*.schema
+      - $.components.responses.*.content.*.schema
+    then:
+      function: oas3_0-schema-requires-example
+
+  # Every top-level schema object in OpenAPI 3.1.x documents should include at least one
+  # example to improve API documentation clarity, support better mocking/code generation,
+  # and help consumers understand realistic data shapes and values.  
+  #
+  # In OpenAPI 3.1:  
+  #   • The singular `example` field is DEPRECATED inside Schema Objects
+  #   • Use `examples` (plural) instead — it accepts an array of values
+  #     (JSON Schema Draft 2020-12 behavior)
+  #
+  # This rule enforces presence of EITHER `example` OR `examples` (non-empty)
+  # on top-level schemas only — not on nested subschemas (properties, items,
+  # allOf/anyOf/oneOf, etc.).  
+  #
+  # Valid example (reusable schema using preferred `examples`):
+  # ```yaml
+  # components:
+  #   schemas:
+  #     User:
+  #       type: object
+  #       properties:
+  #         id:
+  #           type: integer
+  #           format: int64
+  #         name:
+  #           type: string
+  #       examples:                        # ← preferred in 3.1 (array)
+  #         - id: 789
+  #           name: "Charlie Brown"
+  #         - id: 101
+  #           name: "Dana White"
+  # ```
+  #
+  # Also valid (using deprecated `example` — still allowed but not recommended):
+  # ```yaml
+  # components:
+  #   schemas:
+  #     Pet:
+  #       type: object
+  #       properties:
+  #         name:
+  #           type: string
+  #       example:                         # ← still passes the rule
+  #         name: "Max the Dog"
+  # ```
+  #
+  # Valid inline response example:
+  # ```yaml
+  # paths:
+  #   /status:
+  #     get:
+  #       responses:
+  #         '200':
+  #           content:
+  #             application/json:
+  #               schema:
+  #                 type: object
+  #                 properties:
+  #                   online:
+  #                     type: boolean
+  #               examples:
+  #                 healthy:
+  #                   value:
+  #                     online: true
+  # ```
+  #
+  # Invalid examples (missing both `example` and `examples` on top-level schema):
+  # ```yaml
+  # components:
+  #   schemas:
+  #     Order:
+  #       type: object
+  #       properties:
+  #         orderId:
+  #           type: string
+  #         amount:
+  #           type: number
+  #       # no example or examples → violation
+  # ```
+  #
+  # ```yaml
+  # paths:
+  #   /products:
+  #     post:
+  #       requestBody:
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: array
+  #               items:
+  #                 type: object
+  #             # no example/examples on top-level array schema → violation
+  # ```
+  oas3_1-schema-requires-example:
+    description: |
+      Requires 'example' or 'examples' in OAS 3.1.x documents on:
+      - every top-level Schema Object (reusable or inline in paths/responses/parameters/headers/request bodies)
+      Does NOT require examples on subschemas inside properties or items.
+    message: "{{error}}"
+    severity: warn
+    formats: [oas3_1]
+    resolved: false
+    given:
+      - $.components.schemas.*
+      - $.paths[*][*].responses[*].content.*.schema
+      - $.paths[*][*].parameters[*].schema
+      - $.components.parameters.*.schema
+      - $.paths[*][*].responses[*].headers.*.schema
+      - $.components.responses[*].headers.*.schema
+      - $.components.headers.*.schema
+      - $.paths[*][*].requestBody.content.*.schema
+      - $.components.requestBodies.*.content.*.schema
+      - $.paths[*][*].requestBody.content.*.encoding.*.headers.*.schema
+      - $.components.responses.*.content.*.schema
+    then:
+      function: oas3_1-schema-requires-example
+
+  # In OpenAPI 3.1.x, the singular `example` keyword inside Schema Objects is deprecated
+  # in favor of the standard JSON Schema `examples` (plural) keyword, which supports
+  # multiple named or unnamed examples as an array.  
+  #
+  # This rule warns ONLY when:  
+  #   • `example` is present
+  #   • `examples` is NOT present (or is empty)
+  #
+  # It does NOT warn if:  
+  #   • Only `examples` is used (preferred)
+  #   • Both are present (allowed, but `examples` takes precedence in most tools)
+  #   • Neither is present (that's handled by separate rules like requires-example)
+  #
+  # Goal: Encourage migration to `examples` for better future-proofing and JSON Schema
+  # compatibility without being overly strict.  
+  #
+  # Valid & preferred (OpenAPI 3.1 style):
+  # ```yaml
+  # components:
+  #   schemas:
+  #     User:
+  #       type: object
+  #       properties:
+  #         id: { type: integer }
+  #         name: { type: string }
+  #       examples:                    # ← modern, preferred
+  #         - id: 1001
+  #           name: "Alice"
+  #         - id: 1002
+  #           name: "Bob"
+  # ```
+  #
+  # Also valid (no warning):
+  # ```yaml
+  #       example:                     # both present → no warning
+  #         id: 999
+  #         name: "Legacy"
+  #       examples:
+  #         - id: 1001
+  #           name: "Alice"
+  # ```
+  #
+  # Warning triggered (uses deprecated `example` alone):
+  # ```yaml
+  # components:
+  #   schemas:
+  #     Product:
+  #       type: object
+  #       properties:
+  #         sku: { type: string }
+  #       example:                     # ← deprecated & alone → warns
+  #         sku: "ABC-123"
+  #       # no examples field
+  # ```
+  #
+  # No warning (no examples at all — handled by other rules):
+  # ```yaml
+  #       type: string
+  #       # neither example nor examples → no warning here
+  # ```
+  oas3_1-prefer-examples-over-example:
+    description: |
+      In OAS 3.1, prefer 'examples' over the deprecated 'example'.
+      Warn only when 'example' is used **without** 'examples' (i.e. prefer 'examples' when providing examples).
+      No warning if both are present, only 'examples' is present, or neither is present.
+    message: "Use 'examples' instead of (or in addition to) the deprecated 'example' in OAS 3.1 schemas"
+    severity: warn
+    formats: [oas3_1]
+    given:
+      - $.components.schemas.*
+      - $.paths[*][*].responses[*].content.*.schema
+      - $.paths[*][*].parameters[*].schema
+      - $.components.parameters.*.schema
+      - $.paths[*][*].responses[*].headers.*.schema
+      - $.components.responses[*].headers.*.schema
+      - $.components.headers.*.schema
+      - $.paths[*][*].requestBody.content.*.schema
+      - $.components.requestBodies.*.content.*.schema
+      - $.paths[*][*].requestBody.content.*.encoding.*.headers.*.schema
+      - $.components.responses.*.content.*.schema
+    then:
+      function: oas3_1-schema-has-example-but-no-examples
+
+  # Enforce OpenAPI 3.x only (no Swagger 2.0)  
+  # OpenAPI 3.x documents use a top-level "openapi" key with a value like "3.0.3" or "3.1.0".  
+  # Swagger 2.0 documents use a top-level "swagger" key (usually "2.0").  
+  #
+  # Valid example:
+  # ```yaml
+  # openapi: 3.0.3
+  # info:
+  #   title: My API
+  #   version: 1.0.0
+  # paths: {}
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # swagger: '2.0'
+  # info:
+  #   title: My API
+  #   version: 1.0.0
+  # paths: {}
+  # ```
+  oas2-require-openapi-3:
+    description: Document must use OpenAPI 3.x (or newer). Swagger 2.0 is not allowed.
+    message: "Swagger 2.0 detected (uses 'swagger' key). Use 'openapi: 3.x.x' instead."
+    severity: warn
+    given: $
+    then:
+      function: falsy
+      field: swagger
+
+  # Strict enforcement of known verb anti-patterns  
+  # Common verbs that should never appear in path segments are treated as errors.  
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     post: ...
+  #   /users/{id}:
+  #     put: ...
+  # ```
+  # Invalid example:
+  # ```yaml
+  # paths:
+  #   /createUser:
+  #     post: ...
+  #   /updateProfile/{id}:
+  #     put: ...
+  # ```
+  path-segments-no-verbs-blacklist:
+    description: Path segments must not contain blacklisted verbs (e.g., create, update, validate)
+    message: "{{error}}"
+    severity: warn
+    given: $.paths
+    then:
+      field: "@key"
+      function: path-segments-no-verbs-blacklist
+
+  # Section: Optional Content
+  
+  # A contact object is required, including name, url, and email.  
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  contact-properties: off
+  # Info object should contain contact object.  
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  info-contact: off
+  # The info object should have a license key.  
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  info-license: off 
+  # Mentioning a license is only useful if people know what the license means, so add a link to the full text for those who need it.  
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  license-url: off 
+  # OpenAPI object should have non-empty tags array.  
+  # Ensures the root `tags` array is present and contains at least one tag.  
+  # This helps documentation tools group operations effectively.  
+  #
+  # Valid example:
+  # ```yaml
+  # openapi: 3.0.3
+  # info:
+  #   title: Example API
+  #   version: 1.0.0
+  # tags:
+  #   - name: users
+  #     description: Operations about users
+  # paths: {}
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # openapi: 3.0.3
+  # info:
+  #   title: Example API
+  #   version: 1.0.0
+  # # Missing tags entirely or empty array
+  # tags: []
+  # paths: {}
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  openapi-tags: off 
+  # Use just one tag for an operation  
+  # Each operation should have exactly one tag (or up to 3 in some versions) to avoid ambiguity in documentation grouping.  
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       tags:
+  #         - users
+  #       summary: List users
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       tags:
+  #         - users
+  #         - admin
+  #         - reports
+  #       summary: List users
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  operation-singular-tag: off 
+  # Operation should have non-empty tags array.  
+  # Every operation must define at least one tag for proper grouping in generated documentation.  
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       tags:
+  #         - users
+  #       summary: List users
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # paths:
+  #   /users:
+  #     get:
+  #       # Missing tags or empty array
+  #       tags: []
+  #       summary: List users
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  operation-tag-defined: off 
+  # Operation tags should be defined in global tags.  
+  # All tags used in operations must be declared in the root `tags` array for consistency and richer descriptions.  
+  #
+  # Valid example:
+  # ```yaml
+  # tags:
+  #   - name: users
+  #     description: User-related endpoints
+  # paths:
+  #   /users:
+  #     get:
+  #       tags:
+  #         - users
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # # Missing global declaration of 'users'
+  # paths:
+  #   /users:
+  #     get:
+  #       tags:
+  #         - users
+  # ```
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  operation-tags: off 
+  # A tag should have a description.  
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  tag-description: off
+  # Parameter objects should have a description.  
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas2-parameter-description: off
+  # OpenAPI servers must be present and non-empty array.  
+  #
+  # See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+  oas3-api-servers: off     
+
+  # Softer guidance for probable verbs detected by NLP  
+  # Uses heuristic/NLP analysis to catch less obvious verbs or verb forms.  
+  # Already blacklisted verbs are skipped to avoid duplicate messages.  
+  # Allows common exceptions (e.g., "file" in /uploadFile) and explicitly disallows others.  
+  #
+  # Valid example:
+  # ```yaml
+  # paths:
+  #   /uploadFile:
+  #     post: ...
+  #   /reports/export:
+  #     get: ...
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # paths:
+  #   /importData:
+  #     post: ...
+  #   /generateReport:
+  #     get: ...
+  # ```
+  path-segments-no-verbs-probable:
+    description: Path segments should preferably be nouns (NLP heuristic, excludes blacklisted verbs)
+    message: "{{error}}"
+    severity: off
+    given: $.paths
+    then:
+      field: "@key"
+      function: path-segments-no-verbs-probable
+      functionOptions:
+        skipBlacklisted: true
+        allowed:
+          - file
+        disallowed:
+          - import
+          - export
+
+  # Enforces that 400 and 422 error responses in OpenAPI 3.0 documents follow the canonical
+  # Problem Details structure as defined in RFC 9457 (application/problem+json style).  
+  # Uses a custom schema-matching function to verify that the response schema contains
+  # the required fields (type, title, status, errors), correct types, and respects
+  # nullable/optional fields as defined in the reference schema.  
+  # Allows additional properties for future extension but prevents breaking the core contract.  
+  #
+  # Valid example:
+  # ```yaml
+  # responses:
+  #   '400':
+  #     description: Bad Request
+  #     content:
+  #       application/json:
+  #         schema:
+  #           type: object
+  #           required: [type, title, status, errors]
+  #           properties:
+  #             type: { type: string }
+  #             title: { type: string }
+  #             status: { type: integer }
+  #             detail: { type: string, nullable: true }
+  #             errors:
+  #               type: array
+  #               items: { $ref: '#/components/schemas/ErrorItem' }
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # responses:
+  #   '400':
+  #     content:
+  #       application/json:
+  #         schema:
+  #           type: object
+  #           required: [type, title, status]          # missing 'errors'
+  #           properties:
+  #             type: { type: string }
+  #             title: { type: string }
+  #             status: { type: string }                # wrong type
+  #             detail: { type: string }
+  # ```
+  oas3_0-problem-details-response-structure:
+    description: 400 and 422 responses must match the ProblemDetails schema structure (RFC 9457 style) in OpenAPI 3.0 documents
+    message: "{{error}}"
+    severity: warn
+    formats: [oas3_0]
+    given:
+      - "$..responses.400.content['application/json'].schema"
+      - "$..responses.422.content['application/json'].schema"
+    then:
+      function: oas3-schema-matches-schema
+      functionOptions:
+        schemaName: ProblemDetailResponse
+        allowAdditionalProperties: true
+        debug: false
+        expectedSchema:
+          $ref: 'schemas/oas3_0-problem-details-response.yaml#/components/schemas/ProblemDetailResponse'
+
+  # Enforces that 400 and 422 error responses in OpenAPI 3.1 documents follow the canonical
+  # Problem Details structure as defined in RFC 9457 (application/problem+json style).  
+  # Uses a custom schema-matching function to verify that the response schema contains
+  # the required fields (type, title, status, errors), correct types, and respects
+  # nullable/optional fields as defined in the reference schema.  
+  # Allows additional properties for future extension but prevents breaking the core contract.  
+  #
+  # Valid example:
+  # ```yaml
+  # responses:
+  #   '422':
+  #     description: Unprocessable Entity
+  #     content:
+  #       application/json:
+  #         schema:
+  #           type: object
+  #           required: [type, title, status, errors]
+  #           properties:
+  #             type: { type: string }
+  #             title: { type: string }
+  #             status: { type: integer }
+  #             detail: { anyOf: [{type: string}, {type: 'null'}] }
+  #             errors:
+  #               type: array
+  #               minItems: 1
+  #               items: { $ref: '#/components/schemas/ErrorItem' }
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # responses:
+  #   '422':
+  #     content:
+  #       application/json:
+  #         schema:
+  #           type: object
+  #           required: [type, title, status, errors]
+  #           properties:
+  #             type: { type: string }
+  #             title: { type: string }
+  #             status: { type: string }                    # wrong type
+  #             detail: { type: string }                    # missing null option
+  #             errors: { type: object }                    # wrong type
+  # ```
+  oas3_1-problem-details-response-structure:
+    description: 400 and 422 responses must match the ProblemDetails schema structure (RFC 9457 style) in OpenAPI 3.1 documents
+    message: "{{error}}"
+    severity: warn
+    formats: [oas3_1]
+    given:
+      - "$..responses.400.content['application/json'].schema"
+      - "$..responses.422.content['application/json'].schema"
+    then:
+      function: oas3-schema-matches-schema
+      functionOptions:
+        schemaName: ProblemDetailResponse
+        allowAdditionalProperties: true
+        debug: false
+        expectedSchema:
+          $ref: 'schemas/oas3_1-problem-details-response.yaml#/components/schemas/ProblemDetailResponse'
+
+  # Enforces that 500 error responses in OpenAPI 3.0 documents follow the specified
+  # Error structure.  
+  # Uses a custom schema-matching function to verify that the response schema contains
+  # the required fields (error, message), correct types, and respects
+  # nullable/optional fields as defined in the reference schema.  
+  # Allows additional properties for future extension but prevents breaking the core contract.  
+  #
+  # Valid example:
+  # ```yaml
+  # responses:
+  #   '500':
+  #     description: Internal Server Error
+  #     content:
+  #       application/json:
+  #         schema:
+  #           type: object
+  #           required: [error, message]
+  #           properties:
+  #             error: { type: string }
+  #             message: { type: string }
+  #             details:
+  #               type: object
+  #               additionalProperties: true
+  #               nullable: true
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # responses:
+  #   '500':
+  #     content:
+  #       application/json:
+  #         schema:
+  #           type: object
+  #           required: [message]           # missing 'error'
+  #           properties:
+  #             message: { type: string }
+  #             details: { type: string }   # wrong type
+  # ```
+  oas3_0-internal-error-response-structure:
+    description: 500 responses must conform to the canonical error response schema in OpenAPI 3.0 documents
+    message: "{{error}}"
+    severity: warn
+    formats: [oas3_0]
+    given: $..responses.500.content['application/json'].schema
+    then:
+      function: oas3-schema-matches-schema
+      functionOptions:
+        schemaName: ErrorResponse
+        allowAdditionalProperties: true
+        debug: false
+        expectedSchema:
+          $ref: 'schemas/oas3_0-error-response.yaml#/components/schemas/ErrorResponse'
+
+  # Enforces that 500 error responses in OpenAPI 3.1 documents follow the specified
+  # Error structure.  
+  # Uses a custom schema-matching function to verify that the response schema contains
+  # the required fields (error, message), correct types, and respects
+  # nullable/optional fields as defined in the reference schema.  
+  # Allows additional properties for future extension but prevents breaking the core contract.  
+  #
+  # Valid example:
+  # ```yaml
+  # responses:
+  #   '500':
+  #     description: Internal Server Error
+  #     content:
+  #       application/json:
+  #         schema:
+  #           type: object
+  #           required: [error, message]
+  #           properties:
+  #             error: { type: string }
+  #             message: { type: string }
+  #             details:
+  #               anyOf:
+  #                 - type: object
+  #                   additionalProperties: true
+  #                 - type: 'null'
+  # ```
+  #
+  # Invalid example:
+  # ```yaml
+  # responses:
+  #   '500':
+  #     content:
+  #       application/json:
+  #         schema:
+  #           type: object
+  #           required: [error, message]
+  #           properties:
+  #             error: { type: string }
+  #             message: { type: number }   # wrong type
+  #             details: { type: array }    # wrong type
+  # ```
+  oas3_1-internal-error-response-structure:
+    description: 500 responses must conform to the canonical error response schema in OpenAPI 3.1 documents
+    message: "{{error}}"
+    severity: warn
+    formats: [oas3_1]
+    given: $..responses.500.content['application/json'].schema
+    then:
+      function: oas3-schema-matches-schema
+      functionOptions:
+        schemaName: ErrorResponse
+        allowAdditionalProperties: true
+        debug: false
+        expectedSchema:
+          $ref: 'schemas/oas3_1-error-response.yaml#/components/schemas/ErrorResponse'
