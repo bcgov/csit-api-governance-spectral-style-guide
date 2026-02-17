@@ -181,9 +181,9 @@ components:
         'oas3_1_info-summary',
         'oas3-parameter-description',
         'operation-description',
-        'peration-summary',
+        'operation-summary',
         'path-item-summary',
-        'equestBody-description',
+        'requestBody-description',
         'schema-description',
         'securityScheme-description',
         'tag-description'
@@ -331,9 +331,9 @@ components:
         'oas3_1_info-summary',
         'oas3-parameter-description',
         'operation-description',
-        'peration-summary',
+        'operation-summary',
         'path-item-summary',
-        'equestBody-description',
+        'requestBody-description',
         'schema-description',
         'securityScheme-description',
         'tag-description'
