@@ -1,3 +1,5 @@
+# Strict OpenAPI Style Guide
+
 This Spectral ruleset extends the Basic OpenAPI Style Guide and applies stricter enforcement 
 by elevating many recommended best practices to errors, adding mandatory content requirements, 
 and enforcing stricter structural and documentation standards.
