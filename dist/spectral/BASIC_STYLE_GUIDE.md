@@ -539,41 +539,6 @@ See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4d
 
 ---
 
-### info-description
-#### Severity: <span style="color:goldenrod">WARN</span>
-
-OpenAPI object info description must be present and non-empty string.  
-
-
-**Valid example:**
-```yaml
-info:
-  title: My API
-  description: A description of my API
-  version: 1.0.0
-```
-
-
-**Invalid example:**
-```yaml
-info:
-  title: My API
-  version: 1.0.0
-```
-
-
-**Invalid example (empty):**
-```yaml
-info:
-  title: My API
-  description: ""
-  version: 1.0.0
-```
-
-See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
-
----
-
 ### no-eval-in-markdown
 #### Severity: <span style="color:goldenrod">WARN</span>
 
@@ -664,42 +629,6 @@ tags:
 tags:
   - name: users
   - name: users
-```
-
-See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
-
----
-
-### operation-description
-#### Severity: <span style="color:goldenrod">WARN</span>
-
-Operation must have a description  
-
-
-**Valid example:**
-```yaml
-paths:
-  /users:
-    get:
-      description: List all users
-```
-
-
-**Invalid example:**
-```yaml
-paths:
-  /users:
-    get:
-      summary: List users
-```
-
-
-**Invalid example (empty):**
-```yaml
-paths:
-  /users:
-    get:
-      description: ""
 ```
 
 See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
@@ -1483,58 +1412,12 @@ See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4d
 
 ---
 
-### oas3-parameter-description
-#### Severity: <span style="color:goldenrod">WARN</span>
-
-Parameter objects should have a description.  
-
-
-**Valid example:**
-```yaml
-parameters:
-  - name: userId
-    in: path
-    required: true
-    description: The unique identifier of the user
-    schema:
-      type: string
-      format: uuid
-```
-
-
-**Invalid example (missing description):**
-```yaml
-parameters:
-  - name: userId
-    in: path
-    required: true
-    # Missing description
-    schema:
-      type: string
-      format: uuid
-```
-
-
-**Invalid example (empty description):**
-```yaml
-parameters:
-  - name: userId
-    in: path
-    required: true
-    description: ""
-    schema:
-      type: string
-```  
-
-See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
-
----
-
 ### operation-id-camel-case
 #### Severity: <span style="color:goldenrod">WARN</span>
 
 Operation Ids must use camelCase.  
-CamelCase is the most widely adopted convention for operationId across major API providers and SDK generators. It maps naturally to method names in JavaScript/TypeScript, Java, C#, etc.  
+CamelCase is the most widely adopted convention for operationId across major API providers
+and SDK generators. It maps naturally to method names in JavaScript/TypeScript, Java, C#, etc.
 Starting with a lowercase letter avoids conflicts and follows the official OpenAPI Petstore examples.
 
 
@@ -1736,7 +1619,7 @@ components:
 ### no-empty-property-names
 #### Severity: <span style="color:goldenrod">WARN</span>
 
-No empty strings cannotbe used for Schema property names.  
+Empty strings cannot be used for Schema property names.  
 OpenAPI schemas should not use an empty string ("") as a property name.  
 Empty property keys are invalid in actual JSON payloads (most parsers reject { "": "value" }),
 break code generators, and are poorly supported by documentation tools.  
@@ -1764,44 +1647,6 @@ Diff:
         '':                     # <-- disallowed
           type: string
           description: Description of the changes in correction filing.
-```
-
----
-
-### operation-summary
-#### Severity: <span style="color:goldenrod">WARN</span>
-
-Every operation must have a summary (short one-line overview)  
-Summary is ideal for list views and quick scanning in tools like Swagger UI.  
-
-
-**Valid example:**
-```yaml
-paths:
-  /users:
-    get:
-      summary: List all users
-      description: Returns a paginated list of users.
-```
-
-
-**Invalid example:**
-```yaml
-paths:
-  /users:
-    get:
-      # Missing summary
-      description: Returns a paginated list of users.
-```
-
-
-**Invalid example (empty):**
-```yaml
-paths:
-  /users:
-    get:
-      summary: ""
-      description: Returns a paginated list of users.
 ```
 
 ---
@@ -2101,177 +1946,35 @@ paths:
 
 ---
 
-## Optional Content
+### info-description
+#### Severity: <span style="color:goldenrod">WARN</span>
 
-
----
-
-### contact-properties
-#### Severity: OFF
-
-A contact object is required, including name, url, and email.  
-
-See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
-
----
-
-### info-contact
-#### Severity: OFF
-
-Info object should contain contact object.  
-
-See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
-
----
-
-### info-license
-#### Severity: OFF
-
-The info object should have a license key.  
-
-See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
-
----
-
-### license-url
-#### Severity: OFF
-
-Mentioning a license is only useful if people know what the license means, so add a link to the full text for those who need it.  
-
-See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
-
----
-
-### openapi-tags
-#### Severity: OFF
-
-OpenAPI object should have non-empty tags array.  
-Ensures the root `tags` array is present and contains at least one tag.  
-This helps documentation tools group operations effectively.  
+OpenAPI object info description must be present and non-empty string.
 
 
 **Valid example:**
 ```yaml
-openapi: 3.0.3
 info:
-  title: Example API
+  title: My API
+  description: A description of my API
   version: 1.0.0
-tags:
-  - name: users
-    description: Operations about users
-paths: {}
 ```
 
 
 **Invalid example:**
 ```yaml
-openapi: 3.0.3
 info:
-  title: Example API
+  title: My API
   version: 1.0.0
-# Missing tags entirely or empty array
-tags: []
-paths: {}
-```
-
-See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
-
----
-
-### operation-singular-tag
-#### Severity: OFF
-
-Use just one tag for an operation  
-Each operation should have exactly one tag (or up to 3 in some versions) to avoid ambiguity in documentation grouping.  
-
-
-**Valid example:**
-```yaml
-paths:
-  /users:
-    get:
-      tags:
-        - users
-      summary: List users
 ```
 
 
-**Invalid example:**
+**Invalid example (empty):**
 ```yaml
-paths:
-  /users:
-    get:
-      tags:
-        - users
-        - admin
-        - reports
-      summary: List users
-```
-
-See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
-
----
-
-### operation-tag-defined
-#### Severity: OFF
-
-Operation should have non-empty tags array.  
-Every operation must define at least one tag for proper grouping in generated documentation.  
-
-
-**Valid example:**
-```yaml
-paths:
-  /users:
-    get:
-      tags:
-        - users
-      summary: List users
-```
-
-
-**Invalid example:**
-```yaml
-paths:
-  /users:
-    get:
-      # Missing tags or empty array
-      tags: []
-      summary: List users
-```
-
-See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
-
----
-
-### operation-tags
-#### Severity: OFF
-
-Operation tags should be defined in global tags.  
-All tags used in operations must be declared in the root `tags` array for consistency and richer descriptions.  
-
-
-**Valid example:**
-```yaml
-tags:
-  - name: users
-    description: User-related endpoints
-paths:
-  /users:
-    get:
-      tags:
-        - users
-```
-
-
-**Invalid example:**
-```yaml
-# Missing global declaration of 'users'
-paths:
-  /users:
-    get:
-      tags:
-        - users
+info:
+  title: My API
+  description: ""
+  version: 1.0.0
 ```
 
 See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
@@ -2279,39 +1982,705 @@ See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4d
 ---
 
 ### tag-description
-#### Severity: OFF
+#### Severity: <span style="color:goldenrod">WARN</span>
 
-A tag should have a description.  
+Ensures every tag defined in the API includes a clear description explaining the group 
+of operations it represents. This helps API consumers understand the purpose and scope 
+of each tag/category.
+Requires a non-empty description string.
+
+
+**Valid example:**
+```yaml
+tags:
+  - name: users
+    description: Operations for creating, reading, updating, and deleting user accounts, profiles, roles, and preferences
+```
+
+
+**Invalid example:**
+```yaml
+tags:
+  - name: users
+    # description missing
+```
+
+See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+
+---
+
+### oas3-parameter-description
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Parameter objects should have a description.
+
+**Valid example:**
+```yaml
+parameters:
+  - name: userId
+    in: path
+    required: true
+    description: The unique identifier of the user
+    schema:
+      type: string
+      format: uuid
+```
+
+
+**Invalid example (missing description):**
+```yaml
+parameters:
+  - name: userId
+    in: path
+    required: true
+    # Missing description
+    schema:
+      type: string
+      format: uuid
+```
+
+
+**Invalid example (empty description):**
+```yaml
+parameters:
+  - name: userId
+    in: path
+    required: true
+    description: ""
+    schema:
+      type: string
+```  
 
 See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
 
 ---
 
 ### oas2-parameter-description
-#### Severity: OFF
+#### Severity: <span style="color:goldenrod">WARN</span>
 
-Parameter objects should have a description.  
+Ensures that all parameters defined in an OpenAPI 2.0 document have a meaningful description.
+This rule applies to parameters in paths (query, header, path) and operations.
+Body parameters in OAS2 are excluded from this specific rule (handled separately if needed).
+Requires a non-empty description string to help API consumers understand the parameter's purpose,
+format, valid values, and constraints.
+
+
+**Valid example:**
+```yaml
+paths:
+  /users/{id}:
+    parameters:
+      - name: id
+        in: path
+        type: string
+        description: Unique identifier of the user (UUID format)
+      - name: include
+        in: query
+        type: string
+        description: Comma-separated list of additional fields to include in the response (e.g., email,roles)
+```
+
+
+**Invalid example:**
+```yaml
+paths:
+  /users/{id}:
+    parameters:
+      - name: id
+        in: path
+        type: string
+        # description missing
+```
 
 See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
 
 ---
 
-### oas3-api-servers
-#### Severity: OFF
+### operation-description
+#### Severity: <span style="color:goldenrod">WARN</span>
 
-OpenAPI servers must be present and non-empty array.  
+Operation must have a description
+
+
+**Valid example:**
+```yaml
+paths:
+  /users:
+    get:
+      description: List all users
+```
+
+
+**Invalid example:**
+```yaml
+paths:
+  /users:
+    get:
+      summary: List users
+```
+
+
+**Invalid example (empty):**
+```yaml
+paths:
+  /users:
+    get:
+      description: ""
+```
 
 See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+
+---
+
+### schema-description
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Ensures every schema defined in components has a description.
+Mirrors operation-description: requires a non-empty description string.
+
+
+**Valid example:**
+```yaml
+components:
+  schemas:
+    User:
+      description: Represents a registered user account with profile details, roles, and status.
+```
+
+
+**Invalid example:**
+```yaml
+components:
+  schemas:
+    User:
+      # description missing
+```
+
+---
+
+### requestBody-description
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Ensures every requestBody defined in components has a description.
+
+
+**Valid example:**
+```yaml
+components:
+  requestBodies:
+    CreateUserBody:
+      description: Payload for creating a new user account, including required fields like email and name.
+```
+
+
+**Invalid example:**
+```yaml
+components:
+  requestBodies:
+    CreateUserBody:
+      # description missing
+```
+
+---
+
+### header-description
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Ensures every header defined in components has a description.
+
+
+**Valid example:**
+```yaml
+components:
+  headers:
+    X-Request-ID:
+      description: Unique client-provided identifier for tracing requests across services.
+```
+
+
+**Invalid example:**
+```yaml
+components:
+  headers:
+    X-Request-ID:
+      # description missing
+```
+
+---
+
+### securityScheme-description
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Ensures every securityScheme defined in components has a description.
+
+
+**Valid example:**
+```yaml
+components:
+  securitySchemes:
+    BearerAuth:
+      description: JWT-based bearer token authentication with scoped permissions.
+```
+
+
+**Invalid example:**
+```yaml
+components:
+  securitySchemes:
+    BearerAuth:
+      # description missing
+```
+
+---
+
+### operation-description-min-length
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Enforces that operation descriptions are meaningful and contain sufficient detail.
+Requires at least 40 characters to prevent short, useless descriptions like "TODO" or "User info".
+Helps ensure documentation is verbose enough to explain operation behavior properly.
+
+
+**Valid example:**
+```yaml
+get:
+  summary: Retrieve current user profile
+  description: Returns the full details of the currently authenticated user, including name, email address, roles, account creation date, last login timestamp, and active preferences.
+```
+
+
+**Invalid example:**
+```yaml
+get:
+  summary: Retrieve current user profile
+  description: User details                  # too short (< 40 characters)
+```
+
+---
+
+### info-description-min-length
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Ensures the top-level API info.description provides a meaningful overview of the entire API.
+Requires at least 50 characters to avoid placeholder or overly brief text.
+
+
+**Valid example:**
+```yaml
+info:
+  title: User Management API
+  description: RESTful service for managing user accounts, authentication flows, profile information, preferences, roles, and audit logging in a secure and scalable manner.
+```
+
+
+**Invalid example:**
+```yaml
+info:
+  title: User Management API
+  description: User API                              # too short
+```
+
+---
+
+### server-description-min-length
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Ensures each server entry includes a meaningful description explaining its purpose or environment.
+Requires at least 25 characters to avoid generic or placeholder text.
+
+
+**Valid example:**
+```yaml
+servers:
+  - url: https://api.example.com/v1
+    description: Production environment with full data access and high availability
+```
+
+
+**Invalid example:**
+```yaml
+servers:
+  - url: https://api.example.com/v1
+    description: Prod server                 # too short
+```
+
+---
+
+### tag-description-min-length
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Ensures each tag includes a clear description explaining the group of operations it represents.
+Requires at least 25 characters to avoid empty or vague tags.
+
+
+**Valid example:**
+```yaml
+tags:
+  - name: users
+    description: Operations for creating, reading, updating, and deleting user accounts and profiles
+```
+
+
+**Invalid example:**
+```yaml
+tags:
+  - name: users
+    description: Users                       # too short
+```
+
+---
+
+### header-description-min-length
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Ensures reusable header parameters in components include meaningful descriptions.
+Requires at least 25 characters to provide useful context for API consumers.
+
+
+**Valid example:**
+```yaml
+components:
+  headers:
+    X-Request-ID:
+      description: Unique identifier for tracing requests across services and logs
+```
+
+
+**Invalid example:**
+```yaml
+components:
+  headers:
+    X-Request-ID:
+      description: Request ID                  # too short
+```
+
+---
+
+### security-scheme-description-min-length
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Ensures security scheme definitions include a clear description of how authentication works.
+Requires at least 25 characters to help clients understand usage.
+
+
+**Valid example:**
+```yaml
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: JWT-based bearer token authentication with scoped permissions
+```
+
+
+**Invalid example:**
+```yaml
+components:
+  securitySchemes:
+    BearerAuth:
+      description: Bearer token                # too short
+```
+
+---
+
+### property-description-min-length
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Ensures schema property descriptions are detailed enough to explain their purpose and usage.
+Requires at least 25 characters to avoid one-word or placeholder documentation.
+
+
+**Valid example:**
+```yaml
+components:
+  schemas:
+    User:
+      properties:
+        email:
+          description: Primary email address used for authentication, notifications, and account recovery
+```
+
+
+**Invalid example:**
+```yaml
+components:
+  schemas:
+    User:
+      properties:
+        email:
+          description: Email                       # too short
+```
+
+---
+
+### parameter-description-min-length
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Requires parameter descriptions to be descriptive enough to explain purpose and usage.
+Enforces a minimum of 25 characters to prevent one- or two-word placeholders.
+
+
+**Valid example:**
+```yaml
+parameters:
+  - name: userId
+    in: path
+    description: Unique identifier of the user (UUID v4 format)
+```
+
+
+**Invalid example:**
+```yaml
+parameters:
+  - name: userId
+    in: path
+    description: User ID                        # too short
+```
+
+---
+
+### response-description-min-length
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Ensures response descriptions are informative and explain the meaning/conditions
+of each response code. Minimum 20 characters to avoid meaningless entries.
+
+
+**Valid example:**
+```yaml
+responses:
+  '200':
+    description: Successful response containing user profile data
+```
+
+
+**Invalid example:**
+```yaml
+responses:
+  '200':
+    description: OK                               # too short
+```
+
+---
+
+### schema-description-min-length
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Requires schema objects (reusable or inline) to have a meaningful description
+of at least 30 characters to improve model documentation and developer understanding.
+
+
+**Valid example:**
+```yaml
+components:
+  schemas:
+    User:
+      description: Represents a user entity with personal information, authentication details, roles, and account status flags.
+```
+
+
+**Invalid example:**
+```yaml
+components:
+  schemas:
+    User:
+      description: User                           # too short
+```
+
+---
+
+### oas3_1_info-summary
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Ensures the top-level info object includes a concise summary of the entire API.
+This field (new in OpenAPI 3.1) provides a short overview suitable for API listings,
+galleries, or quick reference. Requires a non-empty string.
+
+
+**Valid example:**
+```yaml
+info:
+  title: User Management API
+  summary: REST API for creating, updating, and managing user accounts, profiles, authentication, and roles
+```
+
+
+**Invalid example:**
+```yaml
+info:
+  title: User Management API
+  # summary missing
+```
+
+---
+
+### path-item-summary
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Ensures every path item includes a summary describing the resource or group of operations
+it represents. This helps in navigation and documentation tools that display path-level overviews.
+Requires a non-empty string.
+
+
+**Valid example:**
+```yaml
+paths:
+  /users/{id}:
+    summary: Individual user resource operations
+    get:
+      ...
+```
+
+
+**Invalid example:**
+```yaml
+paths:
+  /users/{id}:
+    # summary missing
+    get:
+      ...
+```
+
+---
+
+### operation-summary
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Every operation must have a summary (short one-line overview)
+Summary is ideal for list views and quick scanning in tools like Swagger UI.
+
+
+**Valid example:**
+```yaml
+paths:
+  /users:
+    get:
+      summary: List all users
+      description: Returns a paginated list of users.
+```
+
+
+**Invalid example:**
+```yaml
+paths:
+  /users:
+    get:
+      # Missing summary
+      description: Returns a paginated list of users.
+```
+
+
+**Invalid example (empty):**
+```yaml
+paths:
+  /users:
+    get:
+      summary: ""
+      description: Returns a paginated list of users.
+```
+
+---
+
+### summary-no-markdown-single-line
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Enforces that summaries (info, path-item, and operations) are plain text and single-line.
+Prohibits newlines (multi-line text) and common Markdown syntax to ensure summaries
+render cleanly in API explorers, lists, overviews, and galleries.
+Summary is **not** Markdown-capable per the OpenAPI spec (unlike description).
+
+Valid examples:
+```yaml
+info:
+  summary: Full-featured REST API
+paths:
+  /users:
+    summary: User management endpoints
+    get:
+      summary: Retrieve user profile
+```
+
+Invalid examples:
+```yaml
+summary: Retrieve **user** profile             # Markdown
+summary: |-
+  Retrieve user profile
+  with details                                 # multi-line
+summary: Fetch [user profile](/api/users)      # Markdown link
+```
+
+
+---
+
+### summary-shorter-than-description
+#### Severity: <span style="color:goldenrod">WARN</span>
+
+Ensures that when both summary and description are present,
+the summary is shorter than the description.
+This applies to info, path items, and operations.
+Prevents misuse where the summary becomes the main documentation
+and the description is left short or redundant.
+
+
+**Valid example (operation):**
+```yaml
+get:
+  summary: Get current user
+  description: Retrieves the profile information of the currently authenticated user, including personal details, roles, account status, preferences, and last activity.
+```
+
+
+**Invalid example (operation):**
+```yaml
+get:
+  summary: This endpoint retrieves the profile of the currently authenticated user including name, email, roles, preferences, and status.
+  description: Get user                    # summary is longer than description
+```
+
+
+**Valid example (path item):**
+```yaml
+paths:
+  /users:
+    summary: User operations
+    description: All endpoints related to viewing, creating, updating, and deleting user profiles and account settings.
+```
+
+
+**Invalid example (path item):**
+```yaml
+paths:
+  /users:
+    summary: All endpoints related to viewing, creating, updating, and deleting user profiles and account settings.
+    description: User operations                         # summary longer than description
+```
+
+
+**Valid example (info):**
+```yaml
+info:
+  summary: Full-featured REST API
+  description: This API demonstrates OpenAPI 3.1 documentation best practices, parameter usage, response structures, and Spectral rule enforcement.
+```
+
+
+**Invalid example (info):**
+```yaml
+info:
+  summary: This is a very long and detailed API overview that should really be in the description field instead.
+  description: API overview
+```
 
 ---
 
 ### path-segments-no-verbs-probable
-#### Severity: OFF
+#### Severity: <span style="color:goldenrod">WARN</span>
 
-Softer guidance for probable verbs detected by NLP  
-Uses heuristic/NLP analysis to catch less obvious verbs or verb forms.  
-Already blacklisted verbs are skipped to avoid duplicate messages.  
-Allows common exceptions (e.g., "file" in /uploadFile) and explicitly disallows others.  
+Softer guidance: probable verbs detected by NLP
+Uses heuristic/NLP analysis to catch less obvious verbs or verb forms.
+Already blacklisted verbs are skipped to avoid duplicate messages.
+Allows common exceptions (e.g., "file" in /uploadFile) and explicitly disallows others.
 
 
 **Valid example:**
@@ -2530,5 +2899,191 @@ responses:
             message: { type: number }   # wrong type
             details: { type: array }    # wrong type
 ```
+
+---
+
+## Optional Content
+
+
+---
+
+### contact-properties
+#### Severity: OFF
+
+A contact object is required, including name, url, and email.
+
+See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+
+---
+
+### info-contact
+#### Severity: OFF
+
+Info object should contain contact object.
+
+See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+
+---
+
+### info-license
+#### Severity: OFF
+
+The info object should have a license key.
+
+See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+
+---
+
+### license-url
+#### Severity: OFF
+
+Mentioning a license is only useful if people know what the license means, so add a link to the full text for those who need it.
+
+See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+
+---
+
+### openapi-tags
+#### Severity: OFF
+
+OpenAPI object should have non-empty tags array.
+Ensures the root `tags` array is present and contains at least one tag.
+This helps documentation tools group operations effectively.
+
+
+**Valid example:**
+```yaml
+openapi: 3.0.3
+info:
+  title: Example API
+  version: 1.0.0
+tags:
+  - name: users
+    description: Operations about users
+paths: {}
+```
+
+
+**Invalid example:**
+```yaml
+openapi: 3.0.3
+info:
+  title: Example API
+  version: 1.0.0
+# Missing tags entirely or empty array
+tags: []
+paths: {}
+```
+
+See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+
+---
+
+### operation-singular-tag
+#### Severity: OFF
+
+Use just one tag for an operation
+Each operation should have exactly one tag (or up to 3 in some versions) to avoid ambiguity in documentation grouping.
+
+
+**Valid example:**
+```yaml
+paths:
+  /users:
+    get:
+      tags:
+        - users
+      summary: List users
+```
+
+
+**Invalid example:**
+```yaml
+paths:
+  /users:
+    get:
+      tags:
+        - users
+        - admin
+        - reports
+      summary: List users
+```
+
+See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+
+---
+
+### operation-tag-defined
+#### Severity: OFF
+
+Operation should have non-empty tags array.
+Every operation must define at least one tag for proper grouping in generated documentation.
+
+
+**Valid example:**
+```yaml
+paths:
+  /users:
+    get:
+      tags:
+        - users
+      summary: List users
+```
+
+
+**Invalid example:**
+```yaml
+paths:
+  /users:
+    get:
+      # Missing tags or empty array
+      tags: []
+      summary: List users
+```
+
+See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+
+---
+
+### operation-tags
+#### Severity: OFF
+
+Operation tags should be defined in global tags.
+All tags used in operations must be declared in the root `tags` array for consistency and richer descriptions.
+
+
+**Valid example:**
+```yaml
+tags:
+  - name: users
+    description: User-related endpoints
+paths:
+  /users:
+    get:
+      tags:
+        - users
+```
+
+
+**Invalid example:**
+```yaml
+# Missing global declaration of 'users'
+paths:
+  /users:
+    get:
+      tags:
+        - users
+```
+
+See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
+
+---
+
+### oas3-api-servers
+#### Severity: OFF
+
+OpenAPI servers must be present and non-empty array.
+
+See official [Spectral documentation](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules) for details.
 
 ---

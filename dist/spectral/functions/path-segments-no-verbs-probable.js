@@ -188191,12 +188191,10 @@ const isBlacklisted = (segment) => {
   return null;
 };
 
-// functions/path-segments-no-verbs-probable.js
-
 // Initialize wink-pos-tagger (lightweight, no model loading needed)
 const tagger = posTagger();
 
-// Verb-like suffixes (excluding 'ing' as previously requested)
+// Verb-like suffixes
 const verbLikeSuffixes = ['ate', 'ize', 'ise', 'ify', 'en'];
 
 const hasVerbLikeSuffix = (word) => {

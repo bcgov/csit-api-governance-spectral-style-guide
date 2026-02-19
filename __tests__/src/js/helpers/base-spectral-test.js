@@ -16,7 +16,7 @@ const Severity = {
 
 class BaseSpectralTest {
   constructor(extendsFilePath, rulesetOverrides = '') {
-    this.extendsFilePath = extendsFilePath;
+    this.extendsFilePath = 'dist/' + extendsFilePath;
     this.rulesetOverrides = rulesetOverrides;
     this.Severity = Severity;
   }
